@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 // ============================================================================
@@ -36,15 +37,19 @@ export function Navbar() {
 
       {/* Authentication Action Buttons (Sign In / Sign Up) */}
       <div className="hidden items-center gap-2.5 sm:flex">
-        <Button
-          variant="ghost"
-          className="rounded-xl px-4 py-2 text-[13px] font-bold text-slate-700 transition hover:bg-red-50 hover:text-red-500"
-        >
-          Sign In
-        </Button>
-        <Button className="rounded-xl bg-red-500 px-5 py-2 text-[13px] font-bold text-white shadow-lg shadow-red-500/20 transition hover:bg-red-600">
-          Sign Up
-        </Button>
+        <Link href="/signin">
+          <Button
+            variant="ghost"
+            className="rounded-xl px-4 py-2 text-[13px] font-bold text-slate-700 transition hover:bg-red-50 hover:text-red-500"
+          >
+            Sign In
+          </Button>
+        </Link>
+        <Link href="/signup">
+          <Button className="rounded-xl bg-red-500 px-5 py-2 text-[13px] font-bold text-white shadow-lg shadow-red-500/20 transition hover:bg-red-600">
+            Sign Up
+          </Button>
+        </Link>
       </div>
     </header>
   );
