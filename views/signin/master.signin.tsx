@@ -3,13 +3,17 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  Eye,
-  EyeOff,
-  Lock,
-  Mail,
-} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { signIn } from "next-auth/react";
+import { toast } from "sonner";
+import { Eye, EyeOff, Lock, Mail, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  signinSchema,
+  type SigninFormValues,
+} from "@/lib/validations/auth.schema";
 
 // ============================================================================
 // Master Signin View Component
@@ -18,13 +22,57 @@ import { Button } from "@/components/ui/button";
 export function MasterSigninComponent() {
   // Password visibility toggle state
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SigninFormValues>({
+    resolver: zodResolver(signinSchema),
+    defaultValues: {
+      identifier: "",
+      password: "",
+      rememberMe: false,
+    },
+    mode: "onTouched",
+  });
+
+  const onSubmit = async (values: SigninFormValues) => {
+    try {
+      setIsLoading(true);
+
+      const result = await signIn("credentials", {
+        identifier: values.identifier.trim(),
+        password: values.password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        toast.error(result.error || "Invalid phone/email or password.");
+        return;
+      }
+
+      if (result?.ok) {
+        toast.success("Login successful! Welcome back.");
+        router.push("/");
+        router.refresh();
+      }
+    } catch (err: any) {
+      console.error("Signin error:", err);
+      toast.error(
+        err?.message || "An unexpected error occurred. Please try again."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-[#f4f6f8] px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
-      
       {/* Main Centered Container */}
       <div className="relative mx-auto grid w-full max-w-[1330px] grid-cols-1 overflow-hidden rounded-[36px] border border-slate-200/80 bg-white shadow-[0_25px_80px_rgba(15,23,42,0.10)] lg:grid-cols-[510px_1fr] xl:grid-cols-[550px_1fr]">
-        
         {/* ====================================================================
             LEFT COLUMN: SIGN IN FORM
             ==================================================================== */}
@@ -53,21 +101,30 @@ export function MasterSigninComponent() {
             </div>
 
             {/* Sign In Form */}
-            <form onSubmit={(e) => e.preventDefault()} className="mt-8 space-y-4">
-              
-              {/* Field 1: Email Address */}
+            <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-4">
+              {/* Field 1: Email Address / Phone */}
               <div>
                 <label className="mb-1.5 block text-xs font-bold text-slate-700">
-                  Email Address
+                  Email Address or Phone
                 </label>
                 <div className="relative">
                   <Mail className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
                   <input
-                    type="email"
-                    placeholder="Enter your email"
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-3 pl-10 pr-3 text-sm font-medium text-slate-800 placeholder-slate-400 transition focus:border-red-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-500/20"
+                    type="text"
+                    placeholder="Enter your phone or email"
+                    {...register("identifier")}
+                    className={`w-full rounded-xl border bg-slate-50/50 py-3 pl-10 pr-3 text-sm font-medium text-slate-800 placeholder-slate-400 transition focus:bg-white focus:outline-none focus:ring-2 ${
+                      errors.identifier
+                        ? "border-red-400 focus:border-red-500 focus:ring-red-500/20"
+                        : "border-slate-200 focus:border-red-500 focus:bg-white focus:ring-red-500/20"
+                    }`}
                   />
                 </div>
+                {errors.identifier && (
+                  <p className="mt-1 text-[11px] font-medium text-red-500">
+                    {errors.identifier.message}
+                  </p>
+                )}
               </div>
 
               {/* Field 2: Password */}
@@ -80,7 +137,12 @@ export function MasterSigninComponent() {
                   <input
                     type={showPassword ? "text" : "password"}
                     placeholder="Enter your password"
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-3 pl-10 pr-10 text-sm font-medium text-slate-800 placeholder-slate-400 transition focus:border-red-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-500/20"
+                    {...register("password")}
+                    className={`w-full rounded-xl border bg-slate-50/50 py-3 pl-10 pr-10 text-sm font-medium text-slate-800 placeholder-slate-400 transition focus:bg-white focus:outline-none focus:ring-2 ${
+                      errors.password
+                        ? "border-red-400 focus:border-red-500 focus:ring-red-500/20"
+                        : "border-slate-200 focus:border-red-500 focus:bg-white focus:ring-red-500/20"
+                    }`}
                   />
                   <button
                     type="button"
@@ -94,6 +156,11 @@ export function MasterSigninComponent() {
                     )}
                   </button>
                 </div>
+                {errors.password && (
+                  <p className="mt-1 text-[11px] font-medium text-red-500">
+                    {errors.password.message}
+                  </p>
+                )}
               </div>
 
               {/* Forgot Password Link */}
@@ -109,9 +176,17 @@ export function MasterSigninComponent() {
               {/* Primary Sign In Button */}
               <Button
                 type="submit"
-                className="w-full rounded-xl bg-red-600 py-3.5 text-sm font-extrabold text-white shadow-lg shadow-red-500/25 transition hover:bg-red-700 active:scale-[0.99]"
+                disabled={isLoading}
+                className="w-full rounded-xl bg-red-600 py-3.5 text-sm font-extrabold text-white shadow-lg shadow-red-500/25 transition hover:bg-red-700 active:scale-[0.99] disabled:opacity-70"
               >
-                Sign In
+                {isLoading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <Loader2 className="size-4 animate-spin" />
+                    Signing In...
+                  </span>
+                ) : (
+                  "Sign In"
+                )}
               </Button>
 
               {/* Section Divider: or continue with */}
@@ -129,6 +204,7 @@ export function MasterSigninComponent() {
                 {/* Google Button */}
                 <button
                   type="button"
+                  onClick={() => signIn("google")}
                   aria-label="Sign in with Google"
                   className="grid size-12 place-items-center rounded-xl border border-slate-200 bg-white shadow-xs transition hover:bg-slate-50 active:scale-95"
                 >
@@ -158,7 +234,10 @@ export function MasterSigninComponent() {
                   aria-label="Sign in with Facebook"
                   className="grid size-12 place-items-center rounded-xl border border-slate-200 bg-white shadow-xs transition hover:bg-slate-50 active:scale-95"
                 >
-                  <svg className="size-5 text-[#1877F2] fill-current" viewBox="0 0 24 24">
+                  <svg
+                    className="size-5 text-[#1877F2] fill-current"
+                    viewBox="0 0 24 24"
+                  >
                     <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                   </svg>
                 </button>
@@ -169,7 +248,10 @@ export function MasterSigninComponent() {
                   aria-label="Sign in with Apple"
                   className="grid size-12 place-items-center rounded-xl border border-slate-200 bg-white shadow-xs transition hover:bg-slate-50 active:scale-95"
                 >
-                  <svg className="size-5 text-slate-900 fill-current" viewBox="0 0 24 24">
+                  <svg
+                    className="size-5 text-slate-900 fill-current"
+                    viewBox="0 0 24 24"
+                  >
                     <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.87c.61-.74 1.04-1.78.92-2.87-.9.04-2.02.6-2.67 1.34-.58.65-1.09 1.71-.95 2.76 1.01.08 2.07-.51 2.7-1.23z" />
                   </svg>
                 </button>
@@ -180,7 +262,10 @@ export function MasterSigninComponent() {
           {/* Footer: Don't have an account link */}
           <div className="mt-8 text-center text-xs font-semibold text-slate-600">
             Don&apos;t have an account?{" "}
-            <Link href="/signup" className="font-extrabold text-red-600 hover:underline">
+            <Link
+              href="/signup"
+              className="font-extrabold text-red-600 hover:underline"
+            >
               Sign up
             </Link>
           </div>
@@ -198,7 +283,6 @@ export function MasterSigninComponent() {
             className="pointer-events-none object-cover object-center"
           />
         </div>
-
       </div>
     </div>
   );
