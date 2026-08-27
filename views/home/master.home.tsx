@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import {
   AlertTriangle,
   ArrowRight,
@@ -141,13 +142,15 @@ export function MasterHomeComponent() {
 
             {/* Call-to-action buttons */}
             <div className="mt-8 flex flex-wrap gap-3">
-              <Button
-                size="lg"
-                className="rounded-xl bg-red-500 px-6 font-bold shadow-xl shadow-red-500/20 hover:bg-red-600"
-              >
-                <AlertTriangle className="mr-2 size-4 fill-white text-red-500" />
-                Report Emergency
-              </Button>
+              <Link href="/incidents/create">
+                <Button
+                  size="lg"
+                  className="rounded-xl bg-red-500 px-6 font-bold shadow-xl shadow-red-500/20 hover:bg-red-600"
+                >
+                  <AlertTriangle className="mr-2 size-4 fill-white text-red-500" />
+                  Report Emergency
+                </Button>
+              </Link>
               <Button
                 size="lg"
                 variant="outline"

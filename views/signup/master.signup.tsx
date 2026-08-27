@@ -3,6 +3,11 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { signIn } from "next-auth/react";
+import { toast } from "sonner";
 import {
   ChevronDown,
   Eye,
@@ -14,8 +19,14 @@ import {
   ShieldCheck,
   User,
   Zap,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  signupSchema,
+  type SignupFormValues,
+} from "@/lib/validations/auth.schema";
+import { useRegisterMutation } from "@/redux/api/authApi";
 
 // ============================================================================
 // Master Signup View Component
@@ -25,14 +36,74 @@ export function MasterSignupComponent() {
   // Password visibility toggle states
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [agreedToTerms, setAgreedToTerms] = useState(true);
+  const [isSigningIn, setIsSigningIn] = useState(false);
+
+  const router = useRouter();
+  const [registerUser, { isLoading: isRegistering }] = useRegisterMutation();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SignupFormValues>({
+    resolver: zodResolver(signupSchema),
+    defaultValues: {
+      fullName: "",
+      phone: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      agreeToTerms: true,
+    },
+    mode: "onTouched",
+  });
+
+  const onSubmit = async (values: SignupFormValues) => {
+    try {
+      const response = await registerUser({
+        fullName: values.fullName,
+        phone: values.phone,
+        email: values.email || undefined,
+        password: values.password,
+      }).unwrap();
+
+      if (response.success) {
+        toast.success("Account created successfully! Signing you in...");
+        setIsSigningIn(true);
+
+        const signInResult = await signIn("credentials", {
+          identifier: values.phone,
+          password: values.password,
+          redirect: false,
+        });
+
+        if (signInResult?.ok) {
+          toast.success("Welcome to Manob Prohori!");
+          router.push("/");
+          router.refresh();
+        } else {
+          toast.info("Account created. Please sign in to continue.");
+          router.push("/signin");
+        }
+      }
+    } catch (err: any) {
+      console.error("Signup error:", err);
+      const errorMessage =
+        err?.data?.message ||
+        err?.message ||
+        "Registration failed. Please check your details.";
+      toast.error(errorMessage);
+    } finally {
+      setIsSigningIn(false);
+    }
+  };
+
+  const isLoading = isRegistering || isSigningIn;
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-[#f4f6f8] px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
-      
       {/* Main Container */}
       <div className="relative mx-auto grid w-full max-w-[1330px] grid-cols-1 overflow-hidden rounded-[36px] border border-slate-200/80 bg-white shadow-[0_25px_80px_rgba(15,23,42,0.10)] lg:grid-cols-[510px_1fr] xl:grid-cols-[550px_1fr]">
-        
         {/* ====================================================================
             LEFT COLUMN: SIGNUP REGISTRATION FORM
             ==================================================================== */}
@@ -65,6 +136,7 @@ export function MasterSignupComponent() {
               {/* Google Sign Up Button */}
               <button
                 type="button"
+                onClick={() => signIn("google")}
                 className="flex w-full items-center justify-center gap-3 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-bold text-white shadow-md shadow-red-500/20 transition hover:bg-red-700 active:scale-[0.99]"
               >
                 <div className="grid size-5.5 place-items-center rounded bg-white shadow-xs">
@@ -95,7 +167,10 @@ export function MasterSignupComponent() {
                 type="button"
                 className="flex w-full items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 shadow-xs transition hover:bg-slate-50 active:scale-[0.99]"
               >
-                <svg className="size-5 text-[#1877F2] fill-current" viewBox="0 0 24 24">
+                <svg
+                  className="size-5 text-[#1877F2] fill-current"
+                  viewBox="0 0 24 24"
+                >
                   <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                 </svg>
                 Sign up with Facebook
@@ -113,8 +188,7 @@ export function MasterSignupComponent() {
             </div>
 
             {/* Registration Form Fields */}
-            <form onSubmit={(e) => e.preventDefault()} className="space-y-3">
-              
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
               {/* Row 1: Full Name & Email Address */}
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {/* Full Name */}
@@ -127,9 +201,19 @@ export function MasterSignupComponent() {
                     <input
                       type="text"
                       placeholder="Enter your full name"
-                      className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-10 pr-3 text-sm font-medium text-slate-800 placeholder-slate-400 transition focus:border-red-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-500/20"
+                      {...register("fullName")}
+                      className={`w-full rounded-xl border bg-slate-50/50 py-2.5 pl-10 pr-3 text-sm font-medium text-slate-800 placeholder-slate-400 transition focus:bg-white focus:outline-none focus:ring-2 ${
+                        errors.fullName
+                          ? "border-red-400 focus:border-red-500 focus:ring-red-500/20"
+                          : "border-slate-200 focus:border-red-500 focus:bg-white focus:ring-red-500/20"
+                      }`}
                     />
                   </div>
+                  {errors.fullName && (
+                    <p className="mt-1 text-[11px] font-medium text-red-500">
+                      {errors.fullName.message}
+                    </p>
+                  )}
                 </div>
 
                 {/* Email Address */}
@@ -142,9 +226,19 @@ export function MasterSignupComponent() {
                     <input
                       type="email"
                       placeholder="Enter your email address"
-                      className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-10 pr-3 text-sm font-medium text-slate-800 placeholder-slate-400 transition focus:border-red-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-500/20"
+                      {...register("email")}
+                      className={`w-full rounded-xl border bg-slate-50/50 py-2.5 pl-10 pr-3 text-sm font-medium text-slate-800 placeholder-slate-400 transition focus:bg-white focus:outline-none focus:ring-2 ${
+                        errors.email
+                          ? "border-red-400 focus:border-red-500 focus:ring-red-500/20"
+                          : "border-slate-200 focus:border-red-500 focus:bg-white focus:ring-red-500/20"
+                      }`}
                     />
                   </div>
+                  {errors.email && (
+                    <p className="mt-1 text-[11px] font-medium text-red-500">
+                      {errors.email.message}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -153,7 +247,13 @@ export function MasterSignupComponent() {
                 <label className="mb-1 block text-xs font-bold text-slate-700">
                   Phone Number
                 </label>
-                <div className="flex rounded-xl border border-slate-200 bg-slate-50/50 transition focus-within:border-red-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-red-500/20">
+                <div
+                  className={`flex rounded-xl border bg-slate-50/50 transition focus-within:bg-white focus-within:ring-2 ${
+                    errors.phone
+                      ? "border-red-400 focus-within:border-red-500 focus-within:ring-red-500/20"
+                      : "border-slate-200 focus-within:border-red-500 focus-within:bg-white focus-within:ring-red-500/20"
+                  }`}
+                >
                   <div className="flex items-center gap-1.5 border-r border-slate-200 px-3 py-2.5 text-slate-700">
                     <Phone className="size-3.5 text-slate-400" />
                     <span className="text-xs font-bold">+880</span>
@@ -162,9 +262,15 @@ export function MasterSignupComponent() {
                   <input
                     type="tel"
                     placeholder="Enter your phone number"
+                    {...register("phone")}
                     className="w-full bg-transparent px-3.5 py-2.5 text-sm font-medium text-slate-800 placeholder-slate-400 focus:outline-none"
                   />
                 </div>
+                {errors.phone && (
+                  <p className="mt-1 text-[11px] font-medium text-red-500">
+                    {errors.phone.message}
+                  </p>
+                )}
               </div>
 
               {/* Row 3: Password & Confirm Password */}
@@ -179,7 +285,12 @@ export function MasterSignupComponent() {
                     <input
                       type={showPassword ? "text" : "password"}
                       placeholder="Create a password"
-                      className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-10 pr-10 text-sm font-medium text-slate-800 placeholder-slate-400 transition focus:border-red-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-500/20"
+                      {...register("password")}
+                      className={`w-full rounded-xl border bg-slate-50/50 py-2.5 pl-10 pr-10 text-sm font-medium text-slate-800 placeholder-slate-400 transition focus:bg-white focus:outline-none focus:ring-2 ${
+                        errors.password
+                          ? "border-red-400 focus:border-red-500 focus:ring-red-500/20"
+                          : "border-slate-200 focus:border-red-500 focus:bg-white focus:ring-red-500/20"
+                      }`}
                     />
                     <button
                       type="button"
@@ -193,6 +304,11 @@ export function MasterSignupComponent() {
                       )}
                     </button>
                   </div>
+                  {errors.password && (
+                    <p className="mt-1 text-[11px] font-medium text-red-500">
+                      {errors.password.message}
+                    </p>
+                  )}
                 </div>
 
                 {/* Confirm Password */}
@@ -205,11 +321,18 @@ export function MasterSignupComponent() {
                     <input
                       type={showConfirmPassword ? "text" : "password"}
                       placeholder="Confirm your password"
-                      className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-10 pr-10 text-sm font-medium text-slate-800 placeholder-slate-400 transition focus:border-red-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-500/20"
+                      {...register("confirmPassword")}
+                      className={`w-full rounded-xl border bg-slate-50/50 py-2.5 pl-10 pr-10 text-sm font-medium text-slate-800 placeholder-slate-400 transition focus:bg-white focus:outline-none focus:ring-2 ${
+                        errors.confirmPassword
+                          ? "border-red-400 focus:border-red-500 focus:ring-red-500/20"
+                          : "border-slate-200 focus:border-red-500 focus:bg-white focus:ring-red-500/20"
+                      }`}
                     />
                     <button
                       type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                     >
                       {showConfirmPassword ? (
@@ -219,36 +342,64 @@ export function MasterSignupComponent() {
                       )}
                     </button>
                   </div>
+                  {errors.confirmPassword && (
+                    <p className="mt-1 text-[11px] font-medium text-red-500">
+                      {errors.confirmPassword.message}
+                    </p>
+                  )}
                 </div>
               </div>
 
               {/* Terms of Service & Privacy Policy Checkbox */}
-              <div className="flex items-center gap-2.5 pt-1">
-                <input
-                  type="checkbox"
-                  id="terms"
-                  checked={agreedToTerms}
-                  onChange={(e) => setAgreedToTerms(e.target.checked)}
-                  className="size-4 rounded border-slate-300 text-red-600 accent-red-600 focus:ring-red-500"
-                />
-                <label htmlFor="terms" className="text-xs font-medium text-slate-600">
-                  I agree to the{" "}
-                  <Link href="/terms" className="font-bold text-red-600 hover:underline">
-                    Terms of Service
-                  </Link>{" "}
-                  and{" "}
-                  <Link href="/privacy" className="font-bold text-red-600 hover:underline">
-                    Privacy Policy
-                  </Link>
-                </label>
+              <div className="pt-1">
+                <div className="flex items-center gap-2.5">
+                  <input
+                    type="checkbox"
+                    id="terms"
+                    {...register("agreeToTerms")}
+                    className="size-4 rounded border-slate-300 text-red-600 accent-red-600 focus:ring-red-500"
+                  />
+                  <label
+                    htmlFor="terms"
+                    className="text-xs font-medium text-slate-600"
+                  >
+                    I agree to the{" "}
+                    <Link
+                      href="/terms"
+                      className="font-bold text-red-600 hover:underline"
+                    >
+                      Terms of Service
+                    </Link>{" "}
+                    and{" "}
+                    <Link
+                      href="/privacy"
+                      className="font-bold text-red-600 hover:underline"
+                    >
+                      Privacy Policy
+                    </Link>
+                  </label>
+                </div>
+                {errors.agreeToTerms && (
+                  <p className="mt-1 text-[11px] font-medium text-red-500">
+                    {errors.agreeToTerms.message}
+                  </p>
+                )}
               </div>
 
               {/* Submit Button */}
               <Button
                 type="submit"
-                className="mt-2 w-full rounded-xl bg-red-600 py-3.5 text-sm font-extrabold text-white shadow-lg shadow-red-500/25 transition hover:bg-red-700 active:scale-[0.99]"
+                disabled={isLoading}
+                className="mt-2 w-full rounded-xl bg-red-600 py-3.5 text-sm font-extrabold text-white shadow-lg shadow-red-500/25 transition hover:bg-red-700 active:scale-[0.99] disabled:opacity-70"
               >
-                Create Account
+                {isLoading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <Loader2 className="size-4 animate-spin" />
+                    Creating Account...
+                  </span>
+                ) : (
+                  "Create Account"
+                )}
               </Button>
             </form>
           </div>
@@ -256,7 +407,10 @@ export function MasterSignupComponent() {
           {/* Footer Sign in Link */}
           <div className="mt-5 text-center text-xs font-semibold text-slate-600">
             Already have an account?{" "}
-            <Link href="/signin" className="font-extrabold text-red-600 hover:underline">
+            <Link
+              href="/signin"
+              className="font-extrabold text-red-600 hover:underline"
+            >
               Sign in
             </Link>
           </div>
@@ -290,11 +444,13 @@ export function MasterSignupComponent() {
               </div>
               <div>
                 <h2 className="text-[19px] font-black leading-[1.2] text-[#10233f]">
-                  Be the help<br />
+                  Be the help
+                  <br />
                   someone needs
                 </h2>
                 <p className="mt-2 text-xs font-medium leading-relaxed text-slate-600">
-                  Sign up today and help us<br />
+                  Sign up today and help us
+                  <br />
                   respond faster, together.
                 </p>
               </div>
@@ -306,7 +462,6 @@ export function MasterSignupComponent() {
               ------------------------------------------------------------------ */}
           <div className="absolute bottom-6 left-6 right-6 z-10 rounded-3xl border border-white/90 bg-white/95 p-5 shadow-[0_20px_50px_rgba(15,23,42,0.18)] backdrop-blur-xl">
             <div className="grid grid-cols-4 divide-x divide-slate-300">
-              
               {/* Pillar 1: Quick Response */}
               <div className="flex flex-col items-center px-3 text-center">
                 <div className="grid size-12 place-items-center rounded-full border border-rose-100 bg-rose-50 text-red-500 shadow-sm transition-transform hover:scale-105">
@@ -316,7 +471,9 @@ export function MasterSignupComponent() {
                   Quick Response
                 </h3>
                 <p className="mt-1 text-[11px] font-semibold leading-tight text-slate-500">
-                  Get help when every<br />second counts.
+                  Get help when every
+                  <br />
+                  second counts.
                 </p>
               </div>
 
@@ -329,7 +486,9 @@ export function MasterSignupComponent() {
                   Trusted Community
                 </h3>
                 <p className="mt-1 text-[11px] font-semibold leading-tight text-slate-500">
-                  Connect with verified<br />volunteers and services.
+                  Connect with verified
+                  <br />
+                  volunteers and services.
                 </p>
               </div>
 
@@ -342,7 +501,9 @@ export function MasterSignupComponent() {
                   Save Lives
                 </h3>
                 <p className="mt-1 text-[11px] font-semibold leading-tight text-slate-500">
-                  Your action today can<br />save lives tomorrow.
+                  Your action today can
+                  <br />
+                  save lives tomorrow.
                 </p>
               </div>
 
@@ -355,15 +516,14 @@ export function MasterSignupComponent() {
                   Secure & Private
                 </h3>
                 <p className="mt-1 text-[11px] font-semibold leading-tight text-slate-500">
-                  Your data is protected<br />and never shared.
+                  Your data is protected
+                  <br />
+                  and never shared.
                 </p>
               </div>
-
             </div>
           </div>
-
         </div>
-
       </div>
     </div>
   );
