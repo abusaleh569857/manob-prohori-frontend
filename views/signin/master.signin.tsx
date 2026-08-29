@@ -16,7 +16,7 @@ import {
 } from "@/lib/validations/auth.schema";
 
 // ============================================================================
-// Master Signin View Component
+// Master Signin View Component sigup
 // Two-column layout: Sign in form on the left, clean rescue image on the right.
 // ============================================================================
 export function MasterSigninComponent() {
