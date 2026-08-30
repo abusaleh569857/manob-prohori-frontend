@@ -93,7 +93,7 @@ export function MasterHomeComponent() {
       {/* ----------------------------------------------------------------------
           SECTION 1: HERO SECTION & RESCUE VISUALS
           Includes background rescue image, city skyline route, and phone mockup.
-          ---------------------------------------------------------------------- */}
+          ---------------------------------------------------------------------- manob prohori*/}
       <section className="relative mx-auto min-h-190 max-w-360 overflow-hidden rounded-b-[38px] px-5 sm:px-8 lg:px-12 -mt-24 pt-24">
         {/* Background rescue operations visual */}
         <Image
