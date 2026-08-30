@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import { Providers } from "./providers";
 import "./globals.css";
+import "leaflet/dist/leaflet.css";
 
 // ============================================================================
 // Global Font Configurations (Google Fonts)
