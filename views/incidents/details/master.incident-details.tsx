@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   MapPin,
@@ -43,6 +44,7 @@ const statusBadgeStyles: Record<string, string> = {
 export function MasterIncidentDetailsComponent({
   incidentId,
 }: MasterIncidentDetailsProps) {
+  const router = useRouter();
   const { data: incidentResponse, isLoading, error } =
     useGetIncidentByIdQuery(incidentId);
   const { data: historyResponse } = useGetIncidentHistoryQuery(incidentId);
@@ -75,12 +77,13 @@ export function MasterIncidentDetailsComponent({
         <p className="mt-1 text-xs text-slate-500">
           The requested emergency incident does not exist or you do not have permission to view it.
         </p>
-        <Link
-          href="/"
-          className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-red-600 hover:underline"
+        <button
+          type="button"
+          onClick={() => router.back()}
+          className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-red-600 hover:underline cursor-pointer"
         >
-          <ArrowLeft className="size-3.5" /> Return Home
-        </Link>
+          <ArrowLeft className="size-3.5" /> Back
+        </button>
       </div>
     );
   }
@@ -88,32 +91,33 @@ export function MasterIncidentDetailsComponent({
   const mapUrl = `https://www.google.com/maps?q=${incident.latitude},${incident.longitude}`;
 
   return (
-    <div className="min-h-screen bg-[#f4f6f8] py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-brand-canvas py-8 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-4xl space-y-6">
         {/* Navigation Breadcrumb */}
         <div className="flex items-center justify-between">
-          <Link
-            href="/incidents/my"
-            className="flex items-center gap-1.5 text-xs font-bold text-slate-600 transition hover:text-red-600"
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="flex items-center gap-1.5 text-xs font-bold text-brand-text-secondary transition hover:text-brand-red cursor-pointer"
           >
             <ArrowLeft className="size-4" />
-            Back to My Reports
-          </Link>
+            Back
+          </button>
 
           <Link
             href="/incidents/create"
-            className="flex items-center gap-1 text-xs font-bold text-red-600 hover:underline"
+            className="flex items-center gap-1 text-xs font-bold text-brand-red hover:underline"
           >
             + Report Another Emergency
           </Link>
         </div>
 
         {/* Main Incident Overview Card */}
-        <div className="rounded-3xl border border-slate-200/80 bg-white p-6 sm:p-8 shadow-sm">
+        <div className="rounded-3xl border border-brand-border bg-brand-surface p-6 sm:p-8 shadow-sm">
           {/* Header Badges & Category */}
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <span className="rounded-xl bg-red-100 px-3 py-1 text-xs font-black text-red-600">
+              <span className="rounded-xl bg-brand-red-soft px-3 py-1 text-xs font-black text-brand-red">
                 {incident.categoryName}
               </span>
               <span
@@ -135,11 +139,11 @@ export function MasterIncidentDetailsComponent({
           </div>
 
           {/* Title and Description */}
-          <h1 className="mt-4 text-2xl font-black text-[#10233f] sm:text-3xl">
+          <h1 className="mt-4 text-2xl font-black text-brand-navy sm:text-3xl">
             {incident.title}
           </h1>
 
-          <p className="mt-3 text-sm leading-relaxed text-slate-700 whitespace-pre-wrap font-medium">
+          <p className="mt-3 text-sm leading-relaxed text-brand-text-primary whitespace-pre-wrap font-medium">
             {incident.description}
           </p>
 

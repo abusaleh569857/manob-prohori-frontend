@@ -39,6 +39,18 @@ export const incidentApi = baseApi.injectEndpoints({
       providesTags: ["Incident"],
     }),
 
+    getAllIncidents: builder.query<
+      ApiResponse<Incident[]>,
+      { status?: string; categoryId?: number; limit?: number; page?: number } | void
+    >({
+      query: (params) => ({
+        url: "/incidents",
+        method: "GET",
+        params: params || {},
+      }),
+      providesTags: ["Incident"],
+    }),
+
     getIncidentById: builder.query<ApiResponse<Incident>, number | string>({
       query: (id) => ({
         url: `/incidents/${id}`,
@@ -81,6 +93,7 @@ export const {
   useGetIncidentCategoriesQuery,
   useCreateIncidentMutation,
   useGetMyIncidentsQuery,
+  useGetAllIncidentsQuery,
   useGetIncidentByIdQuery,
   useGetIncidentHistoryQuery,
   useUpdateIncidentStatusMutation,

@@ -48,75 +48,210 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* Manob Prohori Emergency Response Platform Theme Tokens */
+  --color-brand-red: var(--brand-red);
+  --color-brand-red-dark: var(--brand-red-dark);
+  --color-brand-red-light: var(--brand-red-light);
+  --color-brand-red-soft: var(--brand-red-soft);
+
+  --color-brand-navy: var(--brand-navy);
+  --color-brand-navy-dark: var(--brand-navy-dark);
+  --color-brand-navy-light: var(--brand-navy-light);
+
+  --color-brand-emerald: var(--brand-emerald);
+  --color-brand-emerald-dark: var(--brand-emerald-dark);
+  --color-brand-emerald-soft: var(--brand-emerald-soft);
+
+  --color-brand-blue: var(--brand-blue);
+  --color-brand-blue-dark: var(--brand-blue-dark);
+  --color-brand-blue-soft: var(--brand-blue-soft);
+
+  --color-brand-amber: var(--brand-amber);
+  --color-brand-amber-dark: var(--brand-amber-dark);
+  --color-brand-amber-soft: var(--brand-amber-soft);
+
+  --color-brand-canvas: var(--brand-canvas);
+  --color-brand-surface: var(--brand-surface);
+  --color-brand-border: var(--brand-border);
+  --color-brand-border-strong: var(--brand-border-strong);
+
+  --color-brand-text-primary: var(--brand-text-primary);
+  --color-brand-text-secondary: var(--brand-text-secondary);
+  --color-brand-text-muted: var(--brand-text-muted);
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* Canvas & Base Surfaces */
+  --background: #f8fafc;
+  --foreground: #10233f;
+  
+  /* Cards & Popovers */
+  --card: #ffffff;
+  --card-foreground: #10233f;
+  --popover: #ffffff;
+  --popover-foreground: #10233f;
+  
+  /* Primary Action: Emergency Brand Red */
+  --primary: #dc2626;
+  --primary-foreground: #ffffff;
+  
+  /* Secondary Action: Authority Brand Navy */
+  --secondary: #10233f;
+  --secondary-foreground: #ffffff;
+  
+  /* Muted & Subdued Elements */
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  
+  /* Accent & Soft Tinted Backgrounds */
+  --accent: #fef2f2;
+  --accent-foreground: #dc2626;
+  
+  /* Destructive & Urgent Alert */
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  
+  /* Borders, Inputs & Focus Ring */
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #dc2626;
+  
+  /* Chart Analytics Palette */
+  --chart-1: #dc2626;
+  --chart-2: #10b981;
+  --chart-3: #2563eb;
+  --chart-4: #f59e0b;
+  --chart-5: #10233f;
+  
+  /* Border Radius Scale */
+  --radius: 0.75rem;
+
+  /* Sidebar Tokens */
+  --sidebar: #ffffff;
+  --sidebar-foreground: #10233f;
+  --sidebar-primary: #dc2626;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #fef2f2;
+  --sidebar-accent-foreground: #dc2626;
+  --sidebar-border: #e2e8f0;
+  --sidebar-ring: #dc2626;
+
+  /* Manob Prohori Emergency Response Platform Color Palette */
+  --brand-red: #dc2626;
+  --brand-red-dark: #b91c1c;
+  --brand-red-light: #ef4444;
+  --brand-red-soft: #fef2f2;
+
+  --brand-navy: #10233f;
+  --brand-navy-dark: #091527;
+  --brand-navy-light: #102a52;
+
+  --brand-emerald: #10b981;
+  --brand-emerald-dark: #059669;
+  --brand-emerald-soft: #ecfdf5;
+
+  --brand-blue: #2563eb;
+  --brand-blue-dark: #1d4ed8;
+  --brand-blue-soft: #eff6ff;
+
+  --brand-amber: #f59e0b;
+  --brand-amber-dark: #d97706;
+  --brand-amber-soft: #fffbeb;
+
+  --brand-canvas: #f8fafc;
+  --brand-surface: #ffffff;
+  --brand-border: #e2e8f0;
+  --brand-border-strong: #cbd5e1;
+
+  --brand-text-primary: #10233f;
+  --brand-text-secondary: #64748b;
+  --brand-text-muted: #94a3b8;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  /* Dark Canvas & Base Surfaces */
+  --background: #091527;
+  --foreground: #f8fafc;
+  
+  /* Dark Cards & Popovers */
+  --card: #10233f;
+  --card-foreground: #f8fafc;
+  --popover: #10233f;
+  --popover-foreground: #f8fafc;
+  
+  /* Dark Mode Primary: Vibrant Emergency Red */
+  --primary: #ef4444;
+  --primary-foreground: #ffffff;
+  
+  /* Dark Mode Secondary: Slate Navy */
+  --secondary: #1e293b;
+  --secondary-foreground: #f8fafc;
+  
+  /* Dark Mode Muted */
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+  
+  /* Dark Mode Accent */
+  --accent: rgba(239, 68, 68, 0.15);
+  --accent-foreground: #f87171;
+  
+  /* Dark Mode Destructive */
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  
+  /* Dark Mode Borders, Inputs & Ring */
+  --border: #1e293b;
+  --input: #1e293b;
+  --ring: #ef4444;
+  
+  /* Dark Mode Chart Palette */
+  --chart-1: #ef4444;
+  --chart-2: #34d399;
+  --chart-3: #60a5fa;
+  --chart-4: #fbbf24;
+  --chart-5: #94a3b8;
+  
+  /* Dark Mode Sidebar */
+  --sidebar: #10233f;
+  --sidebar-foreground: #f8fafc;
+  --sidebar-primary: #ef4444;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: rgba(239, 68, 68, 0.15);
+  --sidebar-accent-foreground: #f87171;
+  --sidebar-border: #1e293b;
+  --sidebar-ring: #ef4444;
+
+  /* Dark mode brand tokens */
+  --brand-red: #ef4444;
+  --brand-red-dark: #dc2626;
+  --brand-red-light: #f87171;
+  --brand-red-soft: rgba(239, 68, 68, 0.15);
+
+  --brand-navy: #f8fafc;
+  --brand-navy-dark: #0f172a;
+  --brand-navy-light: #1e293b;
+
+  --brand-emerald: #34d399;
+  --brand-emerald-dark: #10b981;
+  --brand-emerald-soft: rgba(52, 211, 153, 0.15);
+
+  --brand-blue: #60a5fa;
+  --brand-blue-dark: #3b82f6;
+  --brand-blue-soft: rgba(96, 165, 250, 0.15);
+
+  --brand-amber: #fbbf24;
+  --brand-amber-dark: #f59e0b;
+  --brand-amber-soft: rgba(251, 191, 36, 0.15);
+
+  --brand-canvas: #091527;
+  --brand-surface: #10233f;
+  --brand-border: #1e293b;
+  --brand-border-strong: #334155;
+
+  --brand-text-primary: #f8fafc;
+  --brand-text-secondary: #94a3b8;
+  --brand-text-muted: #64748b;
 }
 
 @layer base {

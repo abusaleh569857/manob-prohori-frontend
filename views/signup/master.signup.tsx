@@ -101,13 +101,13 @@ export function MasterSignupComponent() {
   const isLoading = isRegistering || isSigningIn;
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-[#f4f6f8] px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
+    <div className="flex min-h-screen w-full items-center justify-center bg-brand-canvas px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
       {/* Main Container */}
-      <div className="relative mx-auto grid w-full max-w-[1330px] grid-cols-1 overflow-hidden rounded-[36px] border border-slate-200/80 bg-white shadow-[0_25px_80px_rgba(15,23,42,0.10)] lg:grid-cols-[510px_1fr] xl:grid-cols-[550px_1fr]">
+      <div className="relative mx-auto grid w-full max-w-332.5 grid-cols-1 overflow-hidden rounded-[36px] border border-brand-border bg-brand-surface shadow-[0_25px_80px_rgba(15,23,42,0.10)] lg:grid-cols-[510px_1fr] xl:grid-cols-[550px_1fr]">
         {/* ====================================================================
             LEFT COLUMN: SIGNUP REGISTRATION FORM
             ==================================================================== */}
-        <div className="flex flex-col justify-between bg-white p-7 sm:p-9 lg:p-10 xl:p-11">
+        <div className="flex flex-col justify-between bg-brand-surface p-7 sm:p-9 lg:p-10 xl:p-11">
           <div>
             {/* Brand Logo */}
             <Link href="/" className="inline-block">
@@ -117,16 +117,16 @@ export function MasterSignupComponent() {
                 width={220}
                 height={75}
                 priority
-                className="h-auto w-[185px] sm:w-[205px] object-contain"
+                className="h-auto w-46.25 sm:w-51.25 object-contain"
               />
             </Link>
 
             {/* Form Heading & Subtitle */}
             <div className="mt-6">
-              <h1 className="text-3xl font-black tracking-tight text-[#10233f] sm:text-[32px]">
+              <h1 className="text-3xl font-black tracking-tight text-brand-navy sm:text-[32px]">
                 Create your account
               </h1>
-              <p className="mt-1.5 text-sm font-medium text-slate-500">
+              <p className="mt-1.5 text-sm font-medium text-brand-text-secondary">
                 Join Manob Prohori and be a part of a safer community.
               </p>
             </div>
@@ -137,7 +137,7 @@ export function MasterSignupComponent() {
               <button
                 type="button"
                 onClick={() => signIn("google")}
-                className="flex w-full items-center justify-center gap-3 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-bold text-white shadow-md shadow-red-500/20 transition hover:bg-red-700 active:scale-[0.99]"
+                className="flex w-full items-center justify-center gap-3 rounded-xl bg-brand-red px-4 py-2.5 text-sm font-bold text-white shadow-md shadow-brand-red/20 transition hover:bg-brand-red-dark active:scale-[0.99]"
               >
                 <div className="grid size-5.5 place-items-center rounded bg-white shadow-xs">
                   <svg className="size-3.5" viewBox="0 0 24 24">
@@ -165,7 +165,7 @@ export function MasterSignupComponent() {
               {/* Facebook Sign Up Button */}
               <button
                 type="button"
-                className="flex w-full items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 shadow-xs transition hover:bg-slate-50 active:scale-[0.99]"
+                className="flex w-full items-center justify-center gap-3 rounded-xl border border-brand-border bg-white px-4 py-2.5 text-sm font-bold text-slate-700 shadow-xs transition hover:bg-slate-50 active:scale-[0.99]"
               >
                 <svg
                   className="size-5 text-[#1877F2] fill-current"
@@ -180,9 +180,9 @@ export function MasterSignupComponent() {
             {/* Divider */}
             <div className="relative my-4 text-center">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-200" />
+                <div className="w-full border-t border-brand-border" />
               </div>
-              <span className="relative bg-white px-4 text-xs font-semibold uppercase tracking-wider text-slate-400">
+              <span className="relative bg-brand-surface px-4 text-xs font-semibold uppercase tracking-wider text-brand-text-muted">
                 or
               </span>
             </div>
@@ -193,24 +193,24 @@ export function MasterSignupComponent() {
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {/* Full Name */}
                 <div>
-                  <label className="mb-1 block text-xs font-bold text-slate-700">
+                  <label className="mb-1 block text-xs font-bold text-brand-text-primary">
                     Full Name
                   </label>
                   <div className="relative">
-                    <User className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+                    <User className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-brand-text-muted" />
                     <input
                       type="text"
                       placeholder="Enter your full name"
                       {...register("fullName")}
-                      className={`w-full rounded-xl border bg-slate-50/50 py-2.5 pl-10 pr-3 text-sm font-medium text-slate-800 placeholder-slate-400 transition focus:bg-white focus:outline-none focus:ring-2 ${
+                      className={`w-full rounded-xl border bg-slate-50/50 py-2.5 pl-10 pr-3 text-sm font-medium text-brand-text-primary placeholder-slate-400 transition focus:bg-white focus:outline-none focus:ring-2 ${
                         errors.fullName
-                          ? "border-red-400 focus:border-red-500 focus:ring-red-500/20"
-                          : "border-slate-200 focus:border-red-500 focus:bg-white focus:ring-red-500/20"
+                          ? "border-brand-red focus:border-brand-red focus:ring-brand-red/20"
+                          : "border-brand-border focus:border-brand-red focus:bg-white focus:ring-brand-red/20"
                       }`}
                     />
                   </div>
                   {errors.fullName && (
-                    <p className="mt-1 text-[11px] font-medium text-red-500">
+                    <p className="mt-1 text-[11px] font-medium text-brand-red">
                       {errors.fullName.message}
                     </p>
                   )}
@@ -218,24 +218,24 @@ export function MasterSignupComponent() {
 
                 {/* Email Address */}
                 <div>
-                  <label className="mb-1 block text-xs font-bold text-slate-700">
+                  <label className="mb-1 block text-xs font-bold text-brand-text-primary">
                     Email Address
                   </label>
                   <div className="relative">
-                    <Mail className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+                    <Mail className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-brand-text-muted" />
                     <input
                       type="email"
                       placeholder="Enter your email address"
                       {...register("email")}
-                      className={`w-full rounded-xl border bg-slate-50/50 py-2.5 pl-10 pr-3 text-sm font-medium text-slate-800 placeholder-slate-400 transition focus:bg-white focus:outline-none focus:ring-2 ${
+                      className={`w-full rounded-xl border bg-slate-50/50 py-2.5 pl-10 pr-3 text-sm font-medium text-brand-text-primary placeholder-slate-400 transition focus:bg-white focus:outline-none focus:ring-2 ${
                         errors.email
-                          ? "border-red-400 focus:border-red-500 focus:ring-red-500/20"
-                          : "border-slate-200 focus:border-red-500 focus:bg-white focus:ring-red-500/20"
+                          ? "border-brand-red focus:border-brand-red focus:ring-brand-red/20"
+                          : "border-brand-border focus:border-brand-red focus:bg-white focus:ring-brand-red/20"
                       }`}
                     />
                   </div>
                   {errors.email && (
-                    <p className="mt-1 text-[11px] font-medium text-red-500">
+                    <p className="mt-1 text-[11px] font-medium text-brand-red">
                       {errors.email.message}
                     </p>
                   )}
@@ -244,30 +244,30 @@ export function MasterSignupComponent() {
 
               {/* Row 2: Phone Number with Country Code */}
               <div>
-                <label className="mb-1 block text-xs font-bold text-slate-700">
+                <label className="mb-1 block text-xs font-bold text-brand-text-primary">
                   Phone Number
                 </label>
                 <div
                   className={`flex rounded-xl border bg-slate-50/50 transition focus-within:bg-white focus-within:ring-2 ${
                     errors.phone
-                      ? "border-red-400 focus-within:border-red-500 focus-within:ring-red-500/20"
-                      : "border-slate-200 focus-within:border-red-500 focus-within:bg-white focus-within:ring-red-500/20"
+                      ? "border-brand-red focus-within:border-brand-red focus-within:ring-brand-red/20"
+                      : "border-brand-border focus-within:border-brand-red focus-within:bg-white focus-within:ring-brand-red/20"
                   }`}
                 >
-                  <div className="flex items-center gap-1.5 border-r border-slate-200 px-3 py-2.5 text-slate-700">
-                    <Phone className="size-3.5 text-slate-400" />
+                  <div className="flex items-center gap-1.5 border-r border-brand-border px-3 py-2.5 text-brand-text-primary">
+                    <Phone className="size-3.5 text-brand-text-muted" />
                     <span className="text-xs font-bold">+880</span>
-                    <ChevronDown className="size-3 text-slate-400" />
+                    <ChevronDown className="size-3 text-brand-text-muted" />
                   </div>
                   <input
                     type="tel"
                     placeholder="Enter your phone number"
                     {...register("phone")}
-                    className="w-full bg-transparent px-3.5 py-2.5 text-sm font-medium text-slate-800 placeholder-slate-400 focus:outline-none"
+                    className="w-full bg-transparent px-3.5 py-2.5 text-sm font-medium text-brand-text-primary placeholder-slate-400 focus:outline-none"
                   />
                 </div>
                 {errors.phone && (
-                  <p className="mt-1 text-[11px] font-medium text-red-500">
+                  <p className="mt-1 text-[11px] font-medium text-brand-red">
                     {errors.phone.message}
                   </p>
                 )}
@@ -277,25 +277,25 @@ export function MasterSignupComponent() {
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {/* Password */}
                 <div>
-                  <label className="mb-1 block text-xs font-bold text-slate-700">
+                  <label className="mb-1 block text-xs font-bold text-brand-text-primary">
                     Password
                   </label>
                   <div className="relative">
-                    <Lock className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+                    <Lock className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-brand-text-muted" />
                     <input
                       type={showPassword ? "text" : "password"}
                       placeholder="Create a password"
                       {...register("password")}
-                      className={`w-full rounded-xl border bg-slate-50/50 py-2.5 pl-10 pr-10 text-sm font-medium text-slate-800 placeholder-slate-400 transition focus:bg-white focus:outline-none focus:ring-2 ${
+                      className={`w-full rounded-xl border bg-slate-50/50 py-2.5 pl-10 pr-10 text-sm font-medium text-brand-text-primary placeholder-slate-400 transition focus:bg-white focus:outline-none focus:ring-2 ${
                         errors.password
-                          ? "border-red-400 focus:border-red-500 focus:ring-red-500/20"
-                          : "border-slate-200 focus:border-red-500 focus:bg-white focus:ring-red-500/20"
+                          ? "border-brand-red focus:border-brand-red focus:ring-brand-red/20"
+                          : "border-brand-border focus:border-brand-red focus:bg-white focus:ring-brand-red/20"
                       }`}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-text-muted hover:text-brand-text-primary"
                     >
                       {showPassword ? (
                         <EyeOff className="size-4" />
@@ -305,7 +305,7 @@ export function MasterSignupComponent() {
                     </button>
                   </div>
                   {errors.password && (
-                    <p className="mt-1 text-[11px] font-medium text-red-500">
+                    <p className="mt-1 text-[11px] font-medium text-brand-red">
                       {errors.password.message}
                     </p>
                   )}
@@ -313,19 +313,19 @@ export function MasterSignupComponent() {
 
                 {/* Confirm Password */}
                 <div>
-                  <label className="mb-1 block text-xs font-bold text-slate-700">
+                  <label className="mb-1 block text-xs font-bold text-brand-text-primary">
                     Confirm Password
                   </label>
                   <div className="relative">
-                    <Lock className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+                    <Lock className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-brand-text-muted" />
                     <input
                       type={showConfirmPassword ? "text" : "password"}
                       placeholder="Confirm your password"
                       {...register("confirmPassword")}
-                      className={`w-full rounded-xl border bg-slate-50/50 py-2.5 pl-10 pr-10 text-sm font-medium text-slate-800 placeholder-slate-400 transition focus:bg-white focus:outline-none focus:ring-2 ${
+                      className={`w-full rounded-xl border bg-slate-50/50 py-2.5 pl-10 pr-10 text-sm font-medium text-brand-text-primary placeholder-slate-400 transition focus:bg-white focus:outline-none focus:ring-2 ${
                         errors.confirmPassword
-                          ? "border-red-400 focus:border-red-500 focus:ring-red-500/20"
-                          : "border-slate-200 focus:border-red-500 focus:bg-white focus:ring-red-500/20"
+                          ? "border-brand-red focus:border-brand-red focus:ring-brand-red/20"
+                          : "border-brand-border focus:border-brand-red focus:bg-white focus:ring-brand-red/20"
                       }`}
                     />
                     <button
@@ -333,7 +333,7 @@ export function MasterSignupComponent() {
                       onClick={() =>
                         setShowConfirmPassword(!showConfirmPassword)
                       }
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-text-muted hover:text-brand-text-primary"
                     >
                       {showConfirmPassword ? (
                         <EyeOff className="size-4" />
@@ -343,7 +343,7 @@ export function MasterSignupComponent() {
                     </button>
                   </div>
                   {errors.confirmPassword && (
-                    <p className="mt-1 text-[11px] font-medium text-red-500">
+                    <p className="mt-1 text-[11px] font-medium text-brand-red">
                       {errors.confirmPassword.message}
                     </p>
                   )}
@@ -357,30 +357,30 @@ export function MasterSignupComponent() {
                     type="checkbox"
                     id="terms"
                     {...register("agreeToTerms")}
-                    className="size-4 rounded border-slate-300 text-red-600 accent-red-600 focus:ring-red-500"
+                    className="size-4 rounded border-brand-border text-brand-red accent-brand-red focus:ring-brand-red"
                   />
                   <label
                     htmlFor="terms"
-                    className="text-xs font-medium text-slate-600"
+                    className="text-xs font-medium text-brand-text-secondary"
                   >
                     I agree to the{" "}
                     <Link
                       href="/terms"
-                      className="font-bold text-red-600 hover:underline"
+                      className="font-bold text-brand-red hover:underline"
                     >
                       Terms of Service
                     </Link>{" "}
                     and{" "}
                     <Link
                       href="/privacy"
-                      className="font-bold text-red-600 hover:underline"
+                      className="font-bold text-brand-red hover:underline"
                     >
                       Privacy Policy
                     </Link>
                   </label>
                 </div>
                 {errors.agreeToTerms && (
-                  <p className="mt-1 text-[11px] font-medium text-red-500">
+                  <p className="mt-1 text-[11px] font-medium text-brand-red">
                     {errors.agreeToTerms.message}
                   </p>
                 )}
@@ -390,7 +390,7 @@ export function MasterSignupComponent() {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="mt-2 w-full rounded-xl bg-red-600 py-3.5 text-sm font-extrabold text-white shadow-lg shadow-red-500/25 transition hover:bg-red-700 active:scale-[0.99] disabled:opacity-70"
+                className="mt-2 w-full rounded-xl bg-brand-red py-3.5 text-sm font-extrabold text-white shadow-lg shadow-brand-red/25 transition hover:bg-brand-red-dark active:scale-[0.99] disabled:opacity-70"
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center gap-2">
@@ -405,11 +405,11 @@ export function MasterSignupComponent() {
           </div>
 
           {/* Footer Sign in Link */}
-          <div className="mt-5 text-center text-xs font-semibold text-slate-600">
+          <div className="mt-5 text-center text-xs font-semibold text-brand-text-secondary">
             Already have an account?{" "}
             <Link
               href="/signin"
-              className="font-extrabold text-red-600 hover:underline"
+              className="font-extrabold text-brand-red hover:underline"
             >
               Sign in
             </Link>
@@ -419,7 +419,7 @@ export function MasterSignupComponent() {
         {/* ====================================================================
             RIGHT COLUMN: HERO RESCUE IMAGE ASSET & FLOATING CARDS
             ==================================================================== */}
-        <div className="relative hidden min-h-[720px] overflow-hidden lg:block">
+        <div className="relative hidden min-h-180 overflow-hidden lg:block">
           {/* Background Rescue Operations Image */}
           <Image
             src="/images/signup-bg-image.png"
@@ -433,9 +433,9 @@ export function MasterSignupComponent() {
           <div className="absolute left-8 top-8 z-10 max-w-85">
             <div className="flex items-start gap-3.5">
               {/* Circular Logo Container */}
-              <div className="grid size-12 shrink-0 place-items-center rounded-full bg-rose-200/90 p-2 shadow-xs backdrop-blur-sm">
+              <div className="grid size-12 shrink-0 place-items-center rounded-full bg-brand-red-soft p-2 shadow-xs backdrop-blur-sm">
                 <Image
-                  src="/images/manob-prohori-logo.png"
+                  src="/images/manob-prohori-logo1.png"
                   alt="Manob Prohori Shield"
                   width={36}
                   height={36}
@@ -443,12 +443,12 @@ export function MasterSignupComponent() {
                 />
               </div>
               <div>
-                <h2 className="text-[19px] font-black leading-[1.2] text-[#10233f]">
+                <h2 className="text-[19px] font-black leading-[1.2] text-brand-navy">
                   Be the help
                   <br />
                   someone needs
                 </h2>
-                <p className="mt-2 text-xs font-medium leading-relaxed text-slate-600">
+                <p className="mt-2 text-xs font-medium leading-relaxed text-brand-text-secondary">
                   Sign up today and help us
                   <br />
                   respond faster, together.
@@ -464,13 +464,13 @@ export function MasterSignupComponent() {
             <div className="grid grid-cols-4 divide-x divide-slate-300">
               {/* Pillar 1: Quick Response */}
               <div className="flex flex-col items-center px-3 text-center">
-                <div className="grid size-12 place-items-center rounded-full border border-rose-100 bg-rose-50 text-red-500 shadow-sm transition-transform hover:scale-105">
-                  <Zap className="size-5.5 fill-red-500 text-red-500" />
+                <div className="grid size-12 place-items-center rounded-full border border-rose-100 bg-brand-red-soft text-brand-red shadow-sm transition-transform hover:scale-105">
+                  <Zap className="size-5.5 fill-brand-red text-brand-red" />
                 </div>
-                <h3 className="mt-2.5 text-[13px] font-black tracking-tight text-[#10233f]">
+                <h3 className="mt-2.5 text-[13px] font-black tracking-tight text-brand-navy">
                   Quick Response
                 </h3>
-                <p className="mt-1 text-[11px] font-semibold leading-tight text-slate-500">
+                <p className="mt-1 text-[11px] font-semibold leading-tight text-brand-text-secondary">
                   Get help when every
                   <br />
                   second counts.

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
@@ -24,6 +24,8 @@ export function MasterSigninComponent() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl");
 
   const {
     register,
@@ -50,14 +52,38 @@ export function MasterSigninComponent() {
       });
 
       if (result?.error) {
-        toast.error(result.error || "Invalid phone/email or password.");
+        console.log("Error : ", result?.error);
+        toast.error("Invalid phone/email or password.");
         return;
       }
 
       if (result?.ok) {
         toast.success("Login successful! Welcome back.");
-        router.push("/");
-        router.refresh();
+
+        // Fetch fresh session to inspect user roles
+        let userRoles: string[] = [];
+        try {
+          const sessionRes = await fetch("/api/auth/session");
+          if (sessionRes.ok) {
+            const sessionData = await sessionRes.json();
+            userRoles = sessionData?.user?.roles || [];
+          }
+        } catch (e) {
+          console.error("Failed to read fresh session:", e);
+        }
+
+        const isAdmin =
+          userRoles.includes("ADMIN") || userRoles.includes("SUPER_ADMIN");
+
+        let targetUrl = callbackUrl || "/dashboard";
+
+        // If user has ADMIN role, ALWAYS redirect directly to /admin/dashboard
+        if (isAdmin && (!callbackUrl || callbackUrl === "/" || callbackUrl === "/dashboard")) {
+          targetUrl = "/admin/dashboard";
+        }
+
+        // Instant navigation with fresh session
+        window.location.href = targetUrl;
       }
     } catch (err: any) {
       console.error("Signin error:", err);
@@ -70,13 +96,13 @@ export function MasterSigninComponent() {
   };
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-[#f4f6f8] px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
+    <div className="flex min-h-screen w-full items-center justify-center bg-brand-canvas px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
       {/* Main Centered Container */}
-      <div className="relative mx-auto grid w-full max-w-[1330px] grid-cols-1 overflow-hidden rounded-[36px] border border-slate-200/80 bg-white shadow-[0_25px_80px_rgba(15,23,42,0.10)] lg:grid-cols-[510px_1fr] xl:grid-cols-[550px_1fr]">
+      <div className="relative mx-auto grid w-full max-w-332.5 grid-cols-1 overflow-hidden rounded-[36px] border border-brand-border bg-brand-surface shadow-[0_25px_80px_rgba(15,23,42,0.10)] lg:grid-cols-[510px_1fr] xl:grid-cols-[550px_1fr]">
         {/* ====================================================================
             LEFT COLUMN: SIGN IN FORM
             ==================================================================== */}
-        <div className="flex flex-col justify-between bg-white p-7 sm:p-9 lg:p-11 xl:p-12">
+        <div className="flex flex-col justify-between bg-brand-surface p-7 sm:p-9 lg:p-11 xl:p-12">
           <div>
             {/* Brand Logo */}
             <Link href="/" className="inline-block">
@@ -92,10 +118,10 @@ export function MasterSigninComponent() {
 
             {/* Heading & Subtitle */}
             <div className="mt-8">
-              <h1 className="text-3xl font-black tracking-tight text-[#10233f] sm:text-[34px]">
-                Welcome <span className="text-red-600">Back</span>
+              <h1 className="text-3xl font-black tracking-tight text-brand-navy sm:text-[34px]">
+                Welcome <span className="text-brand-red">Back</span>
               </h1>
-              <p className="mt-1.5 text-sm font-medium text-slate-500">
+              <p className="mt-1.5 text-sm font-medium text-brand-text-secondary">
                 Sign in to continue to your account
               </p>
             </div>
@@ -104,24 +130,24 @@ export function MasterSigninComponent() {
             <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-4">
               {/* Field 1: Email Address / Phone */}
               <div>
-                <label className="mb-1.5 block text-xs font-bold text-slate-700">
+                <label className="mb-1.5 block text-xs font-bold text-brand-text-primary">
                   Email Address or Phone
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+                  <Mail className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-brand-text-muted" />
                   <input
                     type="text"
                     placeholder="Enter your phone or email"
                     {...register("identifier")}
-                    className={`w-full rounded-xl border bg-slate-50/50 py-3 pl-10 pr-3 text-sm font-medium text-slate-800 placeholder-slate-400 transition focus:bg-white focus:outline-none focus:ring-2 ${
+                    className={`w-full rounded-xl border bg-slate-50/50 py-3 pl-10 pr-3 text-sm font-medium text-brand-text-primary placeholder-slate-400 transition focus:bg-white focus:outline-none focus:ring-2 ${
                       errors.identifier
-                        ? "border-red-400 focus:border-red-500 focus:ring-red-500/20"
-                        : "border-slate-200 focus:border-red-500 focus:bg-white focus:ring-red-500/20"
+                        ? "border-brand-red focus:border-brand-red focus:ring-brand-red/20"
+                        : "border-brand-border focus:border-brand-red focus:bg-white focus:ring-brand-red/20"
                     }`}
                   />
                 </div>
                 {errors.identifier && (
-                  <p className="mt-1 text-[11px] font-medium text-red-500">
+                  <p className="mt-1 text-[11px] font-medium text-brand-red">
                     {errors.identifier.message}
                   </p>
                 )}
@@ -129,25 +155,25 @@ export function MasterSigninComponent() {
 
               {/* Field 2: Password */}
               <div>
-                <label className="mb-1.5 block text-xs font-bold text-slate-700">
+                <label className="mb-1.5 block text-xs font-bold text-brand-text-primary">
                   Password
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+                  <Lock className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-brand-text-muted" />
                   <input
                     type={showPassword ? "text" : "password"}
                     placeholder="Enter your password"
                     {...register("password")}
-                    className={`w-full rounded-xl border bg-slate-50/50 py-3 pl-10 pr-10 text-sm font-medium text-slate-800 placeholder-slate-400 transition focus:bg-white focus:outline-none focus:ring-2 ${
+                    className={`w-full rounded-xl border bg-slate-50/50 py-3 pl-10 pr-10 text-sm font-medium text-brand-text-primary placeholder-slate-400 transition focus:bg-white focus:outline-none focus:ring-2 ${
                       errors.password
-                        ? "border-red-400 focus:border-red-500 focus:ring-red-500/20"
-                        : "border-slate-200 focus:border-red-500 focus:bg-white focus:ring-red-500/20"
+                        ? "border-brand-red focus:border-brand-red focus:ring-brand-red/20"
+                        : "border-brand-border focus:border-brand-red focus:bg-white focus:ring-brand-red/20"
                     }`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-brand-text-muted hover:text-brand-text-primary"
                   >
                     {showPassword ? (
                       <EyeOff className="size-4" />
@@ -157,7 +183,7 @@ export function MasterSigninComponent() {
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="mt-1 text-[11px] font-medium text-red-500">
+                  <p className="mt-1 text-[11px] font-medium text-brand-red">
                     {errors.password.message}
                   </p>
                 )}
@@ -167,7 +193,7 @@ export function MasterSigninComponent() {
               <div className="flex justify-end pt-0.5">
                 <Link
                   href="/forgot-password"
-                  className="text-xs font-bold text-red-600 hover:underline"
+                  className="text-xs font-bold text-brand-red hover:underline"
                 >
                   Forgot Password?
                 </Link>
@@ -177,7 +203,7 @@ export function MasterSigninComponent() {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full rounded-xl bg-red-600 py-3.5 text-sm font-extrabold text-white shadow-lg shadow-red-500/25 transition hover:bg-red-700 active:scale-[0.99] disabled:opacity-70"
+                className="w-full rounded-xl bg-brand-red py-3.5 text-sm font-extrabold text-white shadow-lg shadow-brand-red/25 transition hover:bg-brand-red-dark active:scale-[0.99] disabled:opacity-70"
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center gap-2">
@@ -192,9 +218,9 @@ export function MasterSigninComponent() {
               {/* Section Divider: or continue with */}
               <div className="relative my-6 text-center">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-slate-200" />
+                  <div className="w-full border-t border-brand-border" />
                 </div>
-                <span className="relative bg-white px-3 text-xs font-semibold text-slate-400">
+                <span className="relative bg-brand-surface px-3 text-xs font-semibold text-brand-text-muted">
                   or continue with
                 </span>
               </div>
@@ -206,7 +232,7 @@ export function MasterSigninComponent() {
                   type="button"
                   onClick={() => signIn("google")}
                   aria-label="Sign in with Google"
-                  className="grid size-12 place-items-center rounded-xl border border-slate-200 bg-white shadow-xs transition hover:bg-slate-50 active:scale-95"
+                  className="grid size-12 place-items-center rounded-xl border border-brand-border bg-white shadow-xs transition hover:bg-slate-50 active:scale-95"
                 >
                   <svg className="size-4.5" viewBox="0 0 24 24">
                     <path
@@ -232,7 +258,7 @@ export function MasterSigninComponent() {
                 <button
                   type="button"
                   aria-label="Sign in with Facebook"
-                  className="grid size-12 place-items-center rounded-xl border border-slate-200 bg-white shadow-xs transition hover:bg-slate-50 active:scale-95"
+                  className="grid size-12 place-items-center rounded-xl border border-brand-border bg-white shadow-xs transition hover:bg-slate-50 active:scale-95"
                 >
                   <svg
                     className="size-5 text-[#1877F2] fill-current"
@@ -246,7 +272,7 @@ export function MasterSigninComponent() {
                 <button
                   type="button"
                   aria-label="Sign in with Apple"
-                  className="grid size-12 place-items-center rounded-xl border border-slate-200 bg-white shadow-xs transition hover:bg-slate-50 active:scale-95"
+                  className="grid size-12 place-items-center rounded-xl border border-brand-border bg-white shadow-xs transition hover:bg-slate-50 active:scale-95"
                 >
                   <svg
                     className="size-5 text-slate-900 fill-current"
@@ -260,11 +286,11 @@ export function MasterSigninComponent() {
           </div>
 
           {/* Footer: Don't have an account link */}
-          <div className="mt-8 text-center text-xs font-semibold text-slate-600">
+          <div className="mt-8 text-center text-xs font-semibold text-brand-text-secondary">
             Don&apos;t have an account?{" "}
             <Link
               href="/signup"
-              className="font-extrabold text-red-600 hover:underline"
+              className="font-extrabold text-brand-red hover:underline"
             >
               Sign up
             </Link>

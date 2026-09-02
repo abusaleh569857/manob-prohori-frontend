@@ -1,5 +1,10 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { toast } from "sonner";
 import {
   AlertTriangle,
   ArrowRight,
@@ -87,13 +92,26 @@ const features = [
 // 3. Master Home View Component
 // ============================================================================
 export function MasterHomeComponent() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  const handleReportEmergency = () => {
+    if (status !== "authenticated" || !session?.user) {
+      toast.error("Please sign in first to report an emergency!", {
+        id: "auth-required-emergency",
+      });
+      router.push("/signin?callbackUrl=/incidents/create");
+    } else {
+      router.push("/incidents/create");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white text-[#10233f]">
-      
       {/* ----------------------------------------------------------------------
           SECTION 1: HERO SECTION & RESCUE VISUALS
           Includes background rescue image, city skyline route, and phone mockup.
-          ---------------------------------------------------------------------- manob prohori*/}
+          ---------------------------------------------------------------------- */}
       <section className="relative mx-auto min-h-190 max-w-360 overflow-hidden rounded-b-[38px] px-5 sm:px-8 lg:px-12 -mt-24 pt-24">
         {/* Background rescue operations visual */}
         <Image
@@ -103,7 +121,7 @@ export function MasterHomeComponent() {
           priority
           className="pointer-events-none object-cover object-center opacity-55"
         />
-        
+
         {/* Ambient background gradient overlay */}
         <div className="absolute inset-0 bg-linear-to-r from-white via-white/95 to-white/10" />
         <div className="absolute inset-x-0 top-0 h-28 bg-linear-to-b from-white/95 to-transparent" />
@@ -113,7 +131,6 @@ export function MasterHomeComponent() {
 
         {/* Hero grid: Left content column and right interactive mobile mockup */}
         <div className="relative z-10 grid min-h-155 items-center gap-8 pb-16 pt-8 sm:pt-10 lg:grid-cols-[1.05fr_.95fr] lg:pt-6">
-          
           {/* Left Column: Heading, description, call-to-action buttons & stats */}
           <div className="max-w-160">
             {/* Live emergency siren pulse badge */}
@@ -127,7 +144,8 @@ export function MasterHomeComponent() {
 
             {/* Primary Hero Heading */}
             <h1 className="text-4xl font-black leading-[1.08] tracking-[-0.04em] sm:text-5xl lg:text-[56px] xl:text-[60px]">
-              Help arrives when<br />
+              Help arrives when
+              <br />
               <span className="whitespace-nowrap">
                 every <span className="text-red-500">second</span> counts
               </span>
@@ -135,22 +153,23 @@ export function MasterHomeComponent() {
 
             {/* Subtitle description */}
             <p className="mt-6 max-w-135 text-base leading-7 text-slate-600 sm:text-lg">
-              Manob Prohori instantly connects you with nearby volunteers,<br />
-              hospitals, blood donors and emergency services. <br className="hidden sm:inline" />
+              Manob Prohori instantly connects you with nearby volunteers,
+              <br />
+              hospitals, blood donors and emergency services.{" "}
+              <br className="hidden sm:inline" />
               Because together, we save lives.
             </p>
 
             {/* Call-to-action buttons */}
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/incidents/create">
-                <Button
-                  size="lg"
-                  className="rounded-xl bg-red-500 px-6 font-bold shadow-xl shadow-red-500/20 hover:bg-red-600"
-                >
-                  <AlertTriangle className="mr-2 size-4 fill-white text-red-500" />
-                  Report Emergency
-                </Button>
-              </Link>
+              <Button
+                size="lg"
+                onClick={handleReportEmergency}
+                className="rounded-xl bg-red-500 px-6 font-bold shadow-xl shadow-red-500/20 hover:bg-red-600 cursor-pointer"
+              >
+                <AlertTriangle className="mr-2 size-4 fill-white text-red-500" />
+                Report Emergency
+              </Button>
               <Button
                 size="lg"
                 variant="outline"
@@ -173,8 +192,8 @@ export function MasterHomeComponent() {
                       index === 0
                         ? "sm:pl-0 sm:pr-2.5"
                         : index === 3
-                        ? "sm:pl-2.5 sm:pr-0"
-                        : "sm:px-2.5"
+                          ? "sm:pl-2.5 sm:pr-0"
+                          : "sm:px-2.5"
                     }`}
                   >
                     <div
@@ -237,7 +256,6 @@ export function MasterHomeComponent() {
           ---------------------------------------------------------------------- */}
       <section className="mx-auto mt-4 max-w-332.5 overflow-hidden rounded-3xl bg-[#102a52] px-7 py-8 text-white sm:px-10">
         <div className="grid items-center gap-8 lg:grid-cols-[1.1fr_1.8fr_1fr]">
-          
           {/* Contribution summary & Learn More */}
           <div>
             <div className="flex items-center gap-3">
@@ -289,7 +307,6 @@ export function MasterHomeComponent() {
               </button>
             </div>
           </div>
-
         </div>
       </section>
     </div>

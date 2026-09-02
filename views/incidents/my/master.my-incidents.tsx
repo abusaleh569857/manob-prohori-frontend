@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   Siren,
@@ -34,26 +35,28 @@ const statusBadgeStyles: Record<string, string> = {
 };
 
 export function MasterMyIncidentsComponent() {
+  const router = useRouter();
   const { data: response, isLoading, error } = useGetMyIncidentsQuery();
   const incidents = response?.data || [];
 
   return (
-    <div className="min-h-screen bg-[#f4f6f8] py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-brand-canvas py-8 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-4xl space-y-6">
         {/* Navigation Breadcrumb */}
         <div className="flex items-center justify-between">
-          <Link
-            href="/"
-            className="flex items-center gap-1.5 text-xs font-bold text-slate-600 transition hover:text-red-600"
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="flex items-center gap-1.5 text-xs font-bold text-brand-text-secondary transition hover:text-brand-red cursor-pointer"
           >
             <ArrowLeft className="size-4" />
-            Back to Home
-          </Link>
+            Back
+          </button>
 
           <Link href="/incidents/create">
             <Button
               size="sm"
-              className="flex items-center gap-1.5 rounded-xl bg-red-600 px-4 text-xs font-bold text-white shadow-md shadow-red-500/20 hover:bg-red-700"
+              className="flex items-center gap-1.5 rounded-xl bg-brand-red px-4 text-xs font-bold text-white shadow-md shadow-brand-red/20 hover:bg-brand-red-dark"
             >
               <Plus className="size-3.5" />
               Report Emergency
@@ -63,10 +66,10 @@ export function MasterMyIncidentsComponent() {
 
         {/* Header Title */}
         <div>
-          <h1 className="text-2xl sm:text-3xl font-black text-[#10233f]">
+          <h1 className="text-2xl sm:text-3xl font-black text-brand-navy">
             My Emergency Reports
           </h1>
-          <p className="mt-1 text-xs text-slate-500 font-medium">
+          <p className="mt-1 text-xs text-brand-text-secondary font-medium">
             Track status, responder assignments, and resolution progress for incidents you reported.
           </p>
         </div>
@@ -75,25 +78,25 @@ export function MasterMyIncidentsComponent() {
         {isLoading ? (
           <div className="flex min-h-[40vh] items-center justify-center">
             <div className="flex flex-col items-center gap-2">
-              <Loader2 className="size-8 animate-spin text-red-600" />
-              <p className="text-xs font-semibold text-slate-500">
+              <Loader2 className="size-8 animate-spin text-brand-red" />
+              <p className="text-xs font-semibold text-brand-text-muted">
                 Loading your reports...
               </p>
             </div>
           </div>
         ) : incidents.length === 0 ? (
-          <div className="rounded-3xl border border-slate-200/80 bg-white p-10 text-center shadow-xs">
-            <div className="grid size-12 mx-auto place-items-center rounded-2xl bg-red-50 text-red-600">
+          <div className="rounded-3xl border border-brand-border bg-brand-surface p-10 text-center shadow-xs">
+            <div className="grid size-12 mx-auto place-items-center rounded-2xl bg-brand-red-soft text-brand-red">
               <Siren className="size-6" />
             </div>
-            <h3 className="mt-3 text-base font-bold text-slate-900">
+            <h3 className="mt-3 text-base font-bold text-brand-navy">
               No emergency incidents reported yet
             </h3>
-            <p className="mt-1 text-xs text-slate-500">
+            <p className="mt-1 text-xs text-brand-text-secondary">
               When you report an emergency, you will be able to monitor live status and response history here.
             </p>
             <Link href="/incidents/create" className="mt-5 inline-block">
-              <Button className="rounded-xl bg-red-600 px-5 text-xs font-bold text-white shadow-md shadow-red-500/20 hover:bg-red-700">
+              <Button className="rounded-xl bg-brand-red px-5 text-xs font-bold text-white shadow-md shadow-brand-red/20 hover:bg-brand-red-dark">
                 Report an Emergency Now
               </Button>
             </Link>
@@ -104,13 +107,13 @@ export function MasterMyIncidentsComponent() {
               <Link
                 key={inc.id}
                 href={`/incidents/${inc.id}`}
-                className="group block rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs transition hover:border-red-300 hover:shadow-md"
+                className="group block rounded-3xl border border-brand-border bg-brand-surface p-5 shadow-xs transition hover:border-brand-red/40 hover:shadow-md"
               >
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                   <div className="space-y-1.5">
                     {/* Badges */}
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="rounded-lg bg-red-50 px-2.5 py-0.5 text-[11px] font-black text-red-600">
+                      <span className="rounded-lg bg-brand-red-soft px-2.5 py-0.5 text-[11px] font-black text-brand-red">
                         {inc.categoryName}
                       </span>
                       <span
@@ -130,21 +133,21 @@ export function MasterMyIncidentsComponent() {
                     </div>
 
                     {/* Title */}
-                    <h3 className="text-base font-bold text-[#10233f] group-hover:text-red-600 transition-colors">
+                    <h3 className="text-base font-bold text-brand-navy group-hover:text-brand-red transition-colors">
                       {inc.title}
                     </h3>
 
                     {/* Metadata: Location and Date */}
-                    <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 font-medium pt-0.5">
+                    <div className="flex flex-wrap items-center gap-4 text-xs text-brand-text-secondary font-medium pt-0.5">
                       <div className="flex items-center gap-1">
-                        <MapPin className="size-3.5 text-slate-400" />
+                        <MapPin className="size-3.5 text-brand-text-muted" />
                         <span>
                           {inc.addressText || inc.areaName || "Coordinates provided"}
                           {inc.district ? `, ${inc.district}` : ""}
                         </span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Calendar className="size-3.5 text-slate-400" />
+                        <Calendar className="size-3.5 text-brand-text-muted" />
                         <span>
                           {new Date(inc.reportedAt).toLocaleDateString([], {
                             month: "short",
@@ -157,7 +160,7 @@ export function MasterMyIncidentsComponent() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-1 text-xs font-bold text-slate-400 group-hover:text-red-600 transition-colors shrink-0">
+                  <div className="flex items-center gap-1 text-xs font-bold text-brand-text-muted group-hover:text-brand-red transition-colors shrink-0">
                     <span>View Details</span>
                     <ChevronRight className="size-4" />
                   </div>

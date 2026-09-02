@@ -64,7 +64,9 @@ export function useGeolocation() {
 
           setLocation(result);
           setIsLocating(false);
-          toast.success("GPS Location captured successfully!");
+          toast.success("GPS Location captured successfully!", {
+            id: "gps-location-success",
+          });
           resolve(result);
         },
         (geoError) => {
@@ -82,7 +84,9 @@ export function useGeolocation() {
           }
           setError(msg);
           setIsLocating(false);
-          toast.error(msg);
+          toast.error(msg, {
+            id: "gps-location-error",
+          });
           resolve(null);
         },
         {

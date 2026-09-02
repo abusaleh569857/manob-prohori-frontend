@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { MasterSigninComponent } from "@/views/signin/master.signin";
 
@@ -14,5 +15,9 @@ export const metadata: Metadata = {
 // Signin Page Entry Point
 // ============================================================================
 export default function SigninPage() {
-  return <MasterSigninComponent />;
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-brand-canvas" />}>
+      <MasterSigninComponent />
+    </Suspense>
+  );
 }

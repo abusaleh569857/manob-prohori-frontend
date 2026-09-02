@@ -41,6 +41,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
           const data = await res.json();
 
+          console.log("Data : ", data);
+
           if (!res.ok || !data.success) {
             throw new Error(data.message || "Invalid login credentials");
           }
@@ -49,13 +51,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             token: string;
             user: BackendUser;
           };
-
           return {
             id: String(user.id),
-            name: user.fullName,
-            email: user.email || "",
-            phone: user.phone,
-            image: user.profilePhotoUrl,
             backendAccessToken: token,
             backendUser: user,
           };
@@ -69,34 +66,26 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        const u = user as unknown as {
-          backendAccessToken?: string;
-          backendUser?: BackendUser;
-        };
-        token.backendAccessToken = u.backendAccessToken;
-        token.backendUser = u.backendUser;
+        token.backendAccessToken = user.backendAccessToken;
+        token.backendUser = user.backendUser;
       }
+
       return token;
     },
     async session({ session, token }) {
-      const customToken = token as typeof token & {
-        backendAccessToken?: string;
-        backendUser?: BackendUser;
-      };
+      session.backendAccessToken = token.backendAccessToken;
 
-      session.backendAccessToken = customToken.backendAccessToken;
-      session.backendUser = customToken.backendUser;
-
-      if (customToken.backendUser) {
+      if (token.backendUser) {
         session.user = {
           ...session.user,
-          id: String(customToken.backendUser.id),
-          name: customToken.backendUser.fullName,
-          email: customToken.backendUser.email || "",
-          phone: customToken.backendUser.phone,
-          roles: customToken.backendUser.roles,
+          id: String(token.backendUser.id),
+          name: token.backendUser.fullName,
+          email: token.backendUser.email || "",
+          phone: token.backendUser.phone,
+          roles: token.backendUser.roles,
         };
       }
+      console.log("Session : ", session)
 
       return session;
     },

@@ -32,6 +32,8 @@ export const baseApi = createApi({
     "Blood",
     "Hospital",
     "Relief",
+    "Admin",
+    "AuditLog",
   ],
   endpoints: () => ({}),
 });
