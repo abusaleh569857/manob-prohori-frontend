@@ -19,6 +19,18 @@ export const incidentApi = baseApi.injectEndpoints({
       providesTags: ["Incident"],
     }),
 
+    getPublicVerifiedIncidents: builder.query<
+      ApiResponse<Incident[]>,
+      { limit?: number } | void
+    >({
+      query: (params) => ({
+        url: "/incidents/public/verified",
+        method: "GET",
+        params: params || {},
+      }),
+      providesTags: ["Incident"],
+    }),
+
     createIncident: builder.mutation<
       ApiResponse<CreateIncidentResponseData>,
       CreateIncidentRequest
@@ -41,12 +53,36 @@ export const incidentApi = baseApi.injectEndpoints({
 
     getAllIncidents: builder.query<
       ApiResponse<Incident[]>,
-      { status?: string; categoryId?: number; limit?: number; page?: number } | void
+      { status?: string; categoryId?: number; search?: string; limit?: number; page?: number } | void
     >({
       query: (params) => ({
         url: "/incidents",
         method: "GET",
         params: params || {},
+      }),
+      providesTags: ["Incident"],
+    }),
+
+    getAdminOverviewStats: builder.query<
+      ApiResponse<{
+        metrics: {
+          totalIncidents: number;
+          pendingVerification: number;
+          activeDispatches: number;
+          resolvedIncidents: number;
+          criticalActive: number;
+          verifiedVolunteers: number;
+          verifiedDonors: number;
+          totalHospitals: number;
+        };
+        categoryBreakdown: Array<{ categoryName: string; count: number }>;
+        severityDistribution: Array<{ severity: string; count: number }>;
+      }>,
+      void
+    >({
+      query: () => ({
+        url: "/incidents/admin/overview-stats",
+        method: "GET",
       }),
       providesTags: ["Incident"],
     }),
@@ -91,9 +127,11 @@ export const incidentApi = baseApi.injectEndpoints({
 
 export const {
   useGetIncidentCategoriesQuery,
+  useGetPublicVerifiedIncidentsQuery,
   useCreateIncidentMutation,
   useGetMyIncidentsQuery,
   useGetAllIncidentsQuery,
+  useGetAdminOverviewStatsQuery,
   useGetIncidentByIdQuery,
   useGetIncidentHistoryQuery,
   useUpdateIncidentStatusMutation,

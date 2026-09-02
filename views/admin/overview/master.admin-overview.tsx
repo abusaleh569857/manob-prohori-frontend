@@ -5,7 +5,7 @@ import { AdminStatCards } from "./components/AdminStatCards";
 import { AdminIncidentCharts } from "./components/AdminIncidentCharts";
 import { AdminPendingVerifications } from "./components/AdminPendingVerifications";
 import { AdminRecentIncidents } from "./components/AdminRecentIncidents";
-import { useGetAdminStatsQuery } from "@/redux/api/adminApi";
+import { useGetAdminOverviewStatsQuery } from "@/redux/api/incidentApi";
 
 const AdminLiveIncidentMap = dynamic(
   () =>
@@ -26,16 +26,22 @@ const AdminLiveIncidentMap = dynamic(
 );
 
 export function MasterAdminOverviewComponent() {
-  const { data: statsResponse } = useGetAdminStatsQuery();
+  const { data: statsResponse, isLoading } = useGetAdminOverviewStatsQuery(undefined, {
+    pollingInterval: 10000,
+  });
+
   const stats = statsResponse?.data;
 
   return (
     <div className="space-y-6">
-      {/* 1. Key Performance & Status Metric Cards */}
-      <AdminStatCards stats={stats} />
+      {/* 1. Key Performance & Status Metric Cards (Live Backend Counts) */}
+      <AdminStatCards metrics={stats?.metrics} />
 
-      {/* 2. Interactive Charts Section (Area, Bar, Donut) */}
-      <AdminIncidentCharts />
+      {/* 2. Interactive Charts Section (Live Categories & Severities) */}
+      <AdminIncidentCharts
+        categoryBreakdown={stats?.categoryBreakdown}
+        severityDistribution={stats?.severityDistribution}
+      />
 
       {/* 3. National Geospatial Dispatch Map */}
       <AdminLiveIncidentMap />

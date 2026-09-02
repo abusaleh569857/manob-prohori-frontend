@@ -21,6 +21,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { HeroPhone } from "./components/hero-phone";
 import { HeroCityRoute } from "./components/hero-city-route";
+import { LiveVerifiedIncidents } from "./components/live-verified-incidents";
 
 // ============================================================================
 // 1. Live Platform Statistics Data
@@ -110,7 +111,7 @@ export function MasterHomeComponent() {
     <div className="min-h-screen bg-white text-[#10233f]">
       {/* ----------------------------------------------------------------------
           SECTION 1: HERO SECTION & RESCUE VISUALS
-          Includes background rescue image, city skyline route, and phone mockup.
+          Outer boundary: max-w-360 mx-auto
           ---------------------------------------------------------------------- */}
       <section className="relative mx-auto min-h-190 max-w-360 overflow-hidden rounded-b-[38px] px-5 sm:px-8 lg:px-12 -mt-24 pt-24">
         {/* Background rescue operations visual */}
@@ -180,9 +181,7 @@ export function MasterHomeComponent() {
               </Button>
             </div>
 
-            {/* ------------------------------------------------------------------
-                Unified Stats Card with Dividers
-                ------------------------------------------------------------------ */}
+            {/* Unified Stats Card with Dividers */}
             <div className="mt-12 w-full max-w-177.5 rounded-3xl border border-slate-200/90 bg-white/95 p-3 sm:p-4 shadow-[0_12px_40px_rgba(15,23,42,0.08)] backdrop-blur-md">
               <div className="grid grid-cols-2 divide-y divide-slate-200/80 sm:grid-cols-4 sm:divide-x sm:divide-y-0">
                 {stats.map(({ value, label, icon: Icon, tone }, index) => (
@@ -224,7 +223,7 @@ export function MasterHomeComponent() {
 
       {/* ----------------------------------------------------------------------
           SECTION 2: KEY PLATFORM FEATURES
-          Five core features providing quick overview of services.
+          Features card kept with its original compact floating look (max-w-332.5)
           ---------------------------------------------------------------------- */}
       <section
         id="features"
@@ -251,10 +250,16 @@ export function MasterHomeComponent() {
       </section>
 
       {/* ----------------------------------------------------------------------
-          SECTION 3: REAL-WORLD IMPACT & APP STORE DOWNLOADS
-          Metrics of saved lives, partner organizations, and fund disbursement.
+          SECTION 2.5: LIVE VERIFIED EMERGENCY INCIDENTS STREAM
+          Outer boundary: max-w-360 mx-auto (matches hero section image width)
           ---------------------------------------------------------------------- */}
-      <section className="mx-auto mt-4 max-w-332.5 overflow-hidden rounded-3xl bg-[#102a52] px-7 py-8 text-white sm:px-10">
+      <LiveVerifiedIncidents />
+
+      {/* ----------------------------------------------------------------------
+          SECTION 3: REAL-WORLD IMPACT & APP STORE DOWNLOADS
+          Outer boundary: max-w-360 mx-auto (matches hero section image width)
+          ---------------------------------------------------------------------- */}
+      <section className="mx-auto mt-6 max-w-360 overflow-hidden rounded-3xl bg-[#102a52] px-7 py-8 text-white sm:px-10">
         <div className="grid items-center gap-8 lg:grid-cols-[1.1fr_1.8fr_1fr]">
           {/* Contribution summary & Learn More */}
           <div>

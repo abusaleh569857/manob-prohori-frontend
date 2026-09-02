@@ -22,7 +22,11 @@ import {
 } from "@/components/ui/chart";
 import { TrendingUp, Activity, PieChart as PieIcon, BarChart3 } from "lucide-react";
 
-// 1. Hourly Trend Data (Area Chart)
+interface AdminIncidentChartsProps {
+  categoryBreakdown?: Array<{ categoryName: string; count: number }>;
+  severityDistribution?: Array<{ severity: string; count: number }>;
+}
+
 const velocityData = [
   { time: "00:00", reported: 2, resolved: 1 },
   { time: "04:00", reported: 1, resolved: 1 },
@@ -36,58 +40,80 @@ const velocityData = [
 const velocityChartConfig: ChartConfig = {
   reported: {
     label: "Incidents Dispatched",
-    color: "#dc2626", // Brand Red
+    color: "#dc2626",
   },
   resolved: {
     label: "Incidents Resolved",
-    color: "#10b981", // Emerald
+    color: "#10b981",
   },
 };
 
-// 2. Incident Category Distribution Data (Bar Chart)
-const categoryData = [
-  { category: "Road Accident", incidents: 38, fill: "#dc2626" },
-  { category: "Fire Alarm", incidents: 22, fill: "#f97316" },
-  { category: "Medical Aid", incidents: 29, fill: "#3b82f6" },
-  { category: "Flood/Water", incidents: 15, fill: "#06b6d4" },
-  { category: "Building Risk", incidents: 8, fill: "#8b5cf6" },
-  { category: "Public Safety", incidents: 12, fill: "#64748b" },
-];
-
 const categoryChartConfig: ChartConfig = {
-  incidents: {
-    label: "Total Dispatches",
+  count: {
+    label: "Incident Count",
     color: "#dc2626",
   },
 };
 
-// 3. Severity Distribution (Donut / Pie Chart)
-const severityData = [
-  { name: "Critical", value: 18, fill: "#dc2626" },
-  { name: "High", value: 34, fill: "#f97316" },
-  { name: "Medium", value: 48, fill: "#3b82f6" },
-  { name: "Low", value: 24, fill: "#10b981" },
-];
-
 const severityChartConfig: ChartConfig = {
-  Critical: { label: "Critical", color: "#dc2626" },
-  High: { label: "High", color: "#f97316" },
-  Medium: { label: "Medium", color: "#3b82f6" },
-  Low: { label: "Low", color: "#10b981" },
+  CRITICAL: { label: "Critical", color: "#dc2626" },
+  HIGH: { label: "High", color: "#f97316" },
+  MEDIUM: { label: "Medium", color: "#3b82f6" },
+  LOW: { label: "Low", color: "#10b981" },
 };
 
-export function AdminIncidentCharts() {
+const SEVERITY_COLORS: Record<string, string> = {
+  CRITICAL: "#dc2626",
+  HIGH: "#f97316",
+  MEDIUM: "#3b82f6",
+  LOW: "#10b981",
+};
+
+export function AdminIncidentCharts({
+  categoryBreakdown = [],
+  severityDistribution = [],
+}: AdminIncidentChartsProps) {
+  // Format dynamic categories or fallback
+  const displayCategories =
+    categoryBreakdown.length > 0
+      ? categoryBreakdown.map((c, i) => ({
+          category: c.categoryName,
+          count: Number(c.count),
+          fill: ["#dc2626", "#f97316", "#3b82f6", "#06b6d4", "#8b5cf6", "#64748b"][i % 6],
+        }))
+      : [
+          { category: "Road Accident", count: 12, fill: "#dc2626" },
+          { category: "Fire Alarm", count: 8, fill: "#f97316" },
+          { category: "Medical Aid", count: 14, fill: "#3b82f6" },
+          { category: "Flood Rescue", count: 5, fill: "#06b6d4" },
+        ];
+
+  // Format dynamic severities or fallback
+  const displaySeverities =
+    severityDistribution.length > 0
+      ? severityDistribution.map((s) => ({
+          name: s.severity,
+          value: Number(s.count),
+          fill: SEVERITY_COLORS[s.severity] || "#3b82f6",
+        }))
+      : [
+          { name: "CRITICAL", value: 5, fill: "#dc2626" },
+          { name: "HIGH", value: 9, fill: "#f97316" },
+          { name: "MEDIUM", value: 15, fill: "#3b82f6" },
+          { name: "LOW", value: 8, fill: "#10b981" },
+        ];
+
   return (
     <div className="space-y-6">
       {/* 24-Hour Velocity Area Chart + Severity Donut Grid */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Area Chart: 24-Hour Emergency Dispatch Velocity */}
-        <div className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-xs lg:col-span-2">
+        <div className="rounded-2xl border border-slate-200/90 bg-white/90 p-5 backdrop-blur-xl shadow-xs lg:col-span-2">
           <div className="flex items-center justify-between pb-4 border-b border-slate-100">
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-sm font-bold text-brand-navy">
-                  24-Hour Emergency Dispatch & Resolution Velocity
+                  24-Hour Emergency Dispatch &amp; Resolution Velocity
                 </h3>
                 <span className="rounded-full bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
                   Live Flow
@@ -102,11 +128,8 @@ export function AdminIncidentCharts() {
             </div>
           </div>
 
-          <div className="mt-4 pt-2">
-            <ChartContainer
-              config={velocityChartConfig}
-              className="h-68 w-full aspect-auto"
-            >
+          <div className="mt-4 h-64 w-full">
+            <ChartContainer config={velocityChartConfig} className="h-full w-full">
               <AreaChart data={velocityData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="fillReported" x1="0" y1="0" x2="0" y2="1">
@@ -118,150 +141,67 @@ export function AdminIncidentCharts() {
                     <stop offset="95%" stopColor="#10b981" stopOpacity={0.0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis
-                  dataKey="time"
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={8}
-                  className="text-[11px] font-semibold text-slate-400"
-                />
-                <YAxis
-                  tickLine={false}
-                  axisLine={false}
-                  className="text-[11px] font-semibold text-slate-400"
-                />
-                <ChartTooltip
-                  cursor={false}
-                  content={<ChartTooltipContent indicator="dot" />}
-                />
-                <Area
-                  type="natural"
-                  dataKey="reported"
-                  stroke="#dc2626"
-                  strokeWidth={2.5}
-                  fillOpacity={1}
-                  fill="url(#fillReported)"
-                />
-                <Area
-                  type="natural"
-                  dataKey="resolved"
-                  stroke="#10b981"
-                  strokeWidth={2.5}
-                  fillOpacity={1}
-                  fill="url(#fillResolved)"
-                />
+                <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#f1f5f9" />
+                <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={8} fontSize={11} stroke="#94a3b8" />
+                <YAxis tickLine={false} axisLine={false} tickMargin={8} fontSize={11} stroke="#94a3b8" />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Area type="monotone" dataKey="reported" stroke="#dc2626" strokeWidth={2.5} fillOpacity={1} fill="url(#fillReported)" />
+                <Area type="monotone" dataKey="resolved" stroke="#10b981" strokeWidth={2.5} fillOpacity={1} fill="url(#fillResolved)" />
                 <ChartLegend content={<ChartLegendContent />} />
               </AreaChart>
             </ChartContainer>
           </div>
         </div>
 
-        {/* Donut Chart: Incident Severity Breakdown */}
-        <div className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-xs flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <div>
-                <h3 className="text-sm font-bold text-brand-navy">
-                  Severity Breakdown
-                </h3>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Proportion by emergency priority level
-                </p>
-              </div>
-              <div className="grid size-8.5 place-items-center rounded-xl bg-slate-100 text-slate-600">
-                <PieIcon className="size-4 text-brand-navy" />
-              </div>
+        {/* Donut Chart: Incident Severity Distribution */}
+        <div className="rounded-2xl border border-slate-200/90 bg-white/90 p-5 backdrop-blur-xl shadow-xs">
+          <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+            <div>
+              <h3 className="text-sm font-bold text-brand-navy">Severity Breakdown</h3>
+              <p className="text-xs text-slate-400 mt-0.5">Live severity distribution</p>
             </div>
-
-            <div className="mt-2">
-              <ChartContainer
-                config={severityChartConfig}
-                className="h-56 w-full aspect-auto"
-              >
-                <PieChart>
-                  <ChartTooltip
-                    cursor={false}
-                    content={<ChartTooltipContent hideLabel />}
-                  />
-                  <Pie
-                    data={severityData}
-                    dataKey="value"
-                    nameKey="name"
-                    innerRadius={50}
-                    outerRadius={75}
-                    paddingAngle={3}
-                    strokeWidth={2}
-                    stroke="#ffffff"
-                  >
-                    {severityData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.fill} />
-                    ))}
-                  </Pie>
-                  <ChartLegend content={<ChartLegendContent />} />
-                </PieChart>
-              </ChartContainer>
+            <div className="grid size-9 place-items-center rounded-xl bg-slate-100 text-slate-600">
+              <PieIcon className="size-4.5 text-brand-navy" />
             </div>
           </div>
 
-          <div className="mt-2 grid grid-cols-2 gap-2 border-t border-slate-100 pt-3 text-[11px]">
-            <div className="flex items-center justify-between rounded-lg bg-red-50/70 p-2 text-brand-red font-bold">
-              <span>Critical</span>
-              <span>18%</span>
-            </div>
-            <div className="flex items-center justify-between rounded-lg bg-amber-50/70 p-2 text-amber-700 font-bold">
-              <span>High</span>
-              <span>34%</span>
-            </div>
+          <div className="mt-4 h-64 w-full">
+            <ChartContainer config={severityChartConfig} className="h-full w-full">
+              <PieChart>
+                <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
+                <Pie data={displaySeverities} dataKey="value" nameKey="name" innerRadius={55} outerRadius={85} paddingAngle={4}>
+                  {displaySeverities.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.fill} />
+                  ))}
+                </Pie>
+                <ChartLegend content={<ChartLegendContent />} />
+              </PieChart>
+            </ChartContainer>
           </div>
         </div>
       </div>
 
-      {/* Bar Chart: Incident Categories Breakdown */}
-      <div className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-xs">
+      {/* Bar Chart: Incidents by Category */}
+      <div className="rounded-2xl border border-slate-200/90 bg-white/90 p-5 backdrop-blur-xl shadow-xs">
         <div className="flex items-center justify-between pb-4 border-b border-slate-100">
           <div>
-            <h3 className="text-sm font-bold text-brand-navy">
-              Emergency Incidents by Category
-            </h3>
-            <p className="text-xs text-slate-400 mt-0.5">
-              Distribution of incidents across managed response categories
-            </p>
+            <h3 className="text-sm font-bold text-brand-navy">Incidents by Category (Database Active)</h3>
+            <p className="text-xs text-slate-400 mt-0.5">Distribution across registered emergency categories</p>
           </div>
           <div className="grid size-9 place-items-center rounded-xl bg-slate-100 text-slate-600">
-            <BarChart3 className="size-4.5 text-brand-blue" />
+            <BarChart3 className="size-4.5 text-brand-red" />
           </div>
         </div>
 
-        <div className="mt-4 pt-2">
-          <ChartContainer
-            config={categoryChartConfig}
-            className="h-60 w-full aspect-auto"
-          >
-            <BarChart data={categoryData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-              <XAxis
-                dataKey="category"
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-                className="text-[11px] font-semibold text-slate-400"
-              />
-              <YAxis
-                tickLine={false}
-                axisLine={false}
-                className="text-[11px] font-semibold text-slate-400"
-              />
-              <ChartTooltip
-                cursor={{ fill: "rgba(0,0,0,0.04)" }}
-                content={<ChartTooltipContent indicator="dot" />}
-              />
-              <Bar
-                dataKey="incidents"
-                radius={[8, 8, 0, 0]}
-                barSize={36}
-              >
-                {categoryData.map((entry, index) => (
+        <div className="mt-4 h-64 w-full">
+          <ChartContainer config={categoryChartConfig} className="h-full w-full">
+            <BarChart data={displayCategories} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#f1f5f9" />
+              <XAxis dataKey="category" tickLine={false} axisLine={false} tickMargin={8} fontSize={11} stroke="#94a3b8" />
+              <YAxis tickLine={false} axisLine={false} tickMargin={8} fontSize={11} stroke="#94a3b8" />
+              <ChartTooltip content={<ChartTooltipContent />} />
+              <Bar dataKey="count" radius={[8, 8, 0, 0]}>
+                {displayCategories.map((entry, index) => (
                   <Cell key={`bar-${index}`} fill={entry.fill} />
                 ))}
               </Bar>
