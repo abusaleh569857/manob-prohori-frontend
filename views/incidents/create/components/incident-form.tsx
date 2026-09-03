@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { CategorySelector } from "./category-selector";
 import { SeveritySelector } from "./severity-selector";
 import { LocationPicker } from "./location-picker";
+import { ImageUploader } from "./image-uploader";
 import type { useCreateIncident } from "../hooks/use-create-incident";
 
 interface IncidentFormProps {
@@ -20,6 +21,8 @@ export function IncidentForm({ hook }: IncidentFormProps) {
     isLoadingCategories,
     isSubmitting,
     isLocating,
+    images,
+    setImages,
     handleCaptureLocation,
   } = hook;
 
@@ -39,21 +42,21 @@ export function IncidentForm({ hook }: IncidentFormProps) {
 
         {/* Incident Title */}
         <div>
-          <label className="mb-1.5 block text-xs font-bold text-slate-700">
-            Incident Title <span className="text-red-500">*</span>
+          <label className="mb-1.5 block text-xs font-bold text-foreground">
+            Incident Title <span className="text-destructive">*</span>
           </label>
           <input
             type="text"
             placeholder="e.g. Fire in 4th floor residential building"
             {...register("title")}
-            className={`w-full rounded-xl border bg-slate-50/50 py-2.5 px-3.5 text-sm font-medium text-slate-800 placeholder-slate-400 transition focus:bg-white focus:outline-none focus:ring-2 ${
+            className={`w-full rounded-xl border bg-slate-50/50 py-2.5 px-3.5 text-sm font-medium text-foreground placeholder:text-muted-foreground transition focus:bg-card focus:outline-none focus:ring-2 ${
               errors.title
-                ? "border-red-400 focus:border-red-500 focus:ring-red-500/20"
-                : "border-slate-200 focus:border-red-500 focus:ring-red-500/20"
+                ? "border-destructive focus:border-destructive focus:ring-destructive/20"
+                : "border-input focus:border-primary focus:ring-primary/20"
             }`}
           />
           {errors.title && (
-            <p className="mt-1 text-[11px] font-medium text-red-500">
+            <p className="mt-1 text-[11px] font-medium text-destructive">
               {errors.title.message}
             </p>
           )}
@@ -61,21 +64,21 @@ export function IncidentForm({ hook }: IncidentFormProps) {
 
         {/* Incident Description */}
         <div>
-          <label className="mb-1.5 block text-xs font-bold text-slate-700">
-            Description <span className="text-red-500">*</span>
+          <label className="mb-1.5 block text-xs font-bold text-foreground">
+            Description <span className="text-destructive">*</span>
           </label>
           <textarea
             rows={3}
             placeholder="Provide specific details about the emergency, trapped victims, hazards, or immediate assistance needed..."
             {...register("description")}
-            className={`w-full rounded-xl border bg-slate-50/50 py-2.5 px-3.5 text-sm font-medium text-slate-800 placeholder-slate-400 transition focus:bg-white focus:outline-none focus:ring-2 ${
+            className={`w-full rounded-xl border bg-slate-50/50 py-2.5 px-3.5 text-sm font-medium text-foreground placeholder:text-muted-foreground transition focus:bg-card focus:outline-none focus:ring-2 ${
               errors.description
-                ? "border-red-400 focus:border-red-500 focus:ring-red-500/20"
-                : "border-slate-200 focus:border-red-500 focus:ring-red-500/20"
+                ? "border-destructive focus:border-destructive focus:ring-destructive/20"
+                : "border-input focus:border-primary focus:ring-primary/20"
             }`}
           />
           {errors.description && (
-            <p className="mt-1 text-[11px] font-medium text-red-500">
+            <p className="mt-1 text-[11px] font-medium text-destructive">
               {errors.description.message}
             </p>
           )}
@@ -90,16 +93,23 @@ export function IncidentForm({ hook }: IncidentFormProps) {
           onCaptureLocation={handleCaptureLocation}
         />
 
+        {/* Incident Photos / Damage Evidence Uploader */}
+        <ImageUploader
+          images={images}
+          onImagesChange={setImages}
+          maxFiles={5}
+        />
+
         {/* Action Button */}
         <Button
           type="submit"
           disabled={isSubmitting}
-          className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-red-600 py-3.5 text-sm font-extrabold text-white shadow-lg shadow-red-500/25 transition hover:bg-red-700 active:scale-[0.99] disabled:opacity-70"
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-sm font-extrabold text-primary-foreground shadow-lg shadow-primary/25 transition hover:bg-primary/90 active:scale-[0.99] disabled:opacity-70 cursor-pointer"
         >
           {isSubmitting ? (
             <>
               <Loader2 className="size-4 animate-spin" />
-              Dispatching Emergency Report...
+              Uploading Photos &amp; Dispatching Emergency Report...
             </>
           ) : (
             <>

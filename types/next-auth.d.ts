@@ -32,3 +32,11 @@ declare module "next-auth/jwt" {
     backendUser?: BackendUser;
   }
 }
+
+declare module "@auth/core/jwt" {
+  interface JWT {
+    backendAccessToken?: string;
+    backendUser?: BackendUser;
+  }
+}
+

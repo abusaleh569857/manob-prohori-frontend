@@ -4,7 +4,6 @@ import type {
   ApiResponse,
   AuthResponseData,
   RegisterRequest,
-  LoginRequest,
   UserProfile,
 } from "@/types/auth.types";
 
@@ -19,14 +18,6 @@ export const authApi = baseApi.injectEndpoints({
       invalidatesTags: ["Auth", "User"],
     }),
 
-    login: builder.mutation<ApiResponse<AuthResponseData>, LoginRequest>({
-      query: (credentials) => ({
-        url: baseApiConfig.endpoints.auth.login,
-        method: "POST",
-        body: credentials,
-      }),
-      invalidatesTags: ["Auth", "User"],
-    }),
 
     getProfile: builder.query<ApiResponse<UserProfile>, void>({
       query: () => ({
@@ -41,7 +32,6 @@ export const authApi = baseApi.injectEndpoints({
 
 export const {
   useRegisterMutation,
-  useLoginMutation,
   useGetProfileQuery,
   useLazyGetProfileQuery,
 } = authApi;

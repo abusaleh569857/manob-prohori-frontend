@@ -52,8 +52,8 @@ export function SeveritySelector() {
 
   return (
     <div>
-      <label className="mb-2 block text-xs font-bold text-slate-700">
-        Severity Level <span className="text-red-500">*</span>
+      <label className="mb-2 block text-xs font-bold text-foreground">
+        Severity Level <span className="text-destructive">*</span>
       </label>
       <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
         {severities.map((item) => {
@@ -66,7 +66,7 @@ export function SeveritySelector() {
               className={`flex flex-col items-start rounded-2xl border p-3 text-left transition-all ${
                 isSelected
                   ? `${item.activeBorder} ring-2`
-                  : "border-slate-200 bg-slate-50/50 hover:bg-white"
+                  : "border-border bg-slate-50/50 hover:bg-card"
               }`}
             >
               <span
@@ -74,7 +74,7 @@ export function SeveritySelector() {
               >
                 {item.label}
               </span>
-              <span className="mt-1 text-[11px] font-medium text-slate-500 leading-tight">
+              <span className="mt-1 text-[11px] font-medium text-muted-foreground leading-tight">
                 {item.desc}
               </span>
             </button>
@@ -82,7 +82,7 @@ export function SeveritySelector() {
         })}
       </div>
       {errors.severity && (
-        <p className="mt-1 text-[11px] font-medium text-red-500">
+        <p className="mt-1 text-[11px] font-medium text-destructive">
           {errors.severity.message}
         </p>
       )}

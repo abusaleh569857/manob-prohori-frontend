@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,9 +14,14 @@ import {
   useCreateIncidentMutation,
 } from "@/redux/api/incidentApi";
 import { useGeolocation } from "@/hooks/use-geolocation";
+import { uploadMultipleFiles, type UploadedImage } from "@/lib/upload-service";
 
 export function useCreateIncident() {
   const router = useRouter();
+  const hasRequestedLocation = useRef(false);
+  const [images, setImages] = useState<UploadedImage[]>([]);
+  const [isUploadingPhotos, setIsUploadingPhotos] = useState(false);
+
   const { data: categoriesResponse, isLoading: isLoadingCategories } =
     useGetIncidentCategoriesQuery();
   const [createIncident, { isLoading: isSubmitting }] =
@@ -41,9 +46,12 @@ export function useCreateIncident() {
     mode: "onTouched",
   });
 
-  // Automatically request GPS location on mount
+  // Automatically request GPS location once on mount
   useEffect(() => {
-    handleCaptureLocation();
+    if (!hasRequestedLocation.current) {
+      hasRequestedLocation.current = true;
+      handleCaptureLocation();
+    }
   }, []);
 
   const handleCaptureLocation = async () => {
@@ -61,7 +69,25 @@ export function useCreateIncident() {
 
   const onSubmit = async (values: IncidentFormValues) => {
     try {
-      const response = await createIncident(values).unwrap();
+      setIsUploadingPhotos(true);
+
+      // 1. Process and upload all attached incident photos
+      const filesToUpload = images
+        .map((img) => img.file)
+        .filter((f): f is File => !!f);
+
+      let finalImageUrls: string[] = [];
+      if (filesToUpload.length > 0) {
+        finalImageUrls = await uploadMultipleFiles(filesToUpload);
+      }
+
+      // 2. Submit payload with photo URLs
+      const payload = {
+        ...values,
+        imageUrls: finalImageUrls,
+      };
+
+      const response = await createIncident(payload as any).unwrap();
 
       if (response.success && response.data) {
         toast.success("Incident reported successfully! Emergency units notified.");
@@ -74,6 +100,8 @@ export function useCreateIncident() {
         err?.message ||
         "Failed to report incident. Please check your inputs.";
       toast.error(errorMessage);
+    } finally {
+      setIsUploadingPhotos(false);
     }
   };
 
@@ -82,9 +110,11 @@ export function useCreateIncident() {
     onSubmit: form.handleSubmit(onSubmit),
     categories: categoriesResponse?.data || [],
     isLoadingCategories,
-    isSubmitting,
+    isSubmitting: isSubmitting || isUploadingPhotos,
     isLocating,
     location,
+    images,
+    setImages,
     handleCaptureLocation,
   };
 }
