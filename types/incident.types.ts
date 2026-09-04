@@ -15,8 +15,37 @@ export interface IncidentCategory {
   name: string;
   slug: string;
   description: string | null;
-  icon_name: string | null;
-  sort_order: number;
+  icon_name?: string | null;
+  iconName?: string | null;
+  sort_order?: number;
+  sortOrder?: number;
+  isActive?: boolean;
+}
+
+export interface AdminIncidentCategory {
+  id: number;
+  name: string;
+  slug: string;
+  description: string | null;
+  iconName: string | null;
+  sortOrder: number;
+  isActive: boolean;
+  incidentsCount: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateCategoryInput {
+  name: string;
+  slug?: string;
+  description?: string;
+  iconName?: string;
+  sortOrder?: number;
+  isActive?: boolean;
+}
+
+export interface UpdateCategoryInput extends Partial<CreateCategoryInput> {
+  id: number;
 }
 
 export interface Incident {

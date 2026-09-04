@@ -16,6 +16,7 @@ import {
   LogOut,
   Shield,
   Radio,
+  Layers,
 } from "lucide-react";
 import { RoleSwitcher } from "./role-switcher";
 import { cn } from "@/lib/utils";
@@ -52,6 +53,14 @@ export function AdminSidebar() {
       tooltip: `${activeDispatches} Active Dispatches · ${pendingVerification} Pending Verification`,
       badgeCount: activeDispatches > 0 ? activeDispatches : pendingVerification > 0 ? pendingVerification : null,
       badgeType: activeDispatches > 0 ? ("urgent" as const) : ("warning" as const),
+    },
+    {
+      label: "Incident Categories",
+      href: "/admin/categories",
+      icon: Layers,
+      tooltip: "Dynamic emergency category taxonomy & icons",
+      badgeCount: null,
+      badgeType: null,
     },
     {
       label: "Volunteer Verification",

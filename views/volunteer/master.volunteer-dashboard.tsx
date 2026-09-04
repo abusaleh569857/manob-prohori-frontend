@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -26,6 +26,9 @@ import {
   Car,
   Flag,
   Award,
+  Volume2,
+  BellRing,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -41,26 +44,81 @@ import {
   useUpdateMissionStatusMutation,
 } from "@/redux/api/volunteerApi";
 
+/**
+ * Web Audio API synthesized high-priority Emergency Dispatch Siren
+ * Zero-latency, plays without external mp3 asset dependencies
+ */
+let audioCtxInstance: any = null;
+
+function getAudioContext() {
+  if (typeof window === "undefined") return null;
+  if (!audioCtxInstance) {
+    const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+    if (AudioCtx) {
+      audioCtxInstance = new AudioCtx();
+    }
+  }
+  if (audioCtxInstance && audioCtxInstance.state === "suspended") {
+    audioCtxInstance.resume().catch(() => {});
+  }
+  return audioCtxInstance;
+}
+
+function playEmergencyAlertSound() {
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+
+    // Siren sweep oscillator
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "sawtooth";
+    osc.frequency.setValueAtTime(880, now);
+    osc.frequency.exponentialRampToValueAtTime(440, now + 0.25);
+    osc.frequency.exponentialRampToValueAtTime(880, now + 0.5);
+    osc.frequency.exponentialRampToValueAtTime(440, now + 0.75);
+    osc.frequency.exponentialRampToValueAtTime(950, now + 1.0);
+    osc.frequency.exponentialRampToValueAtTime(520, now + 1.25);
+
+    gain.gain.setValueAtTime(0.4, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 1.35);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(now);
+    osc.stop(now + 1.35);
+  } catch (err) {
+    console.warn("Emergency audio chime blocked by browser autoplay policy:", err);
+  }
+}
+
 export function MasterVolunteerDashboardComponent() {
   const [resolutionNote, setResolutionNote] = useState("");
   const [isResolvingModalOpen, setIsResolvingModalOpen] = useState(false);
+  const [incomingAlertIncident, setIncomingAlertIncident] = useState<any>(null);
+  const [dismissedAlertIds, setDismissedAlertIds] = useState<number[]>([]);
+  const prevDispatchIdsRef = useRef<number[]>([]);
+  const hasInitializedRef = useRef<boolean>(false);
 
-  // RTK Query with real-time polling for profile, verification & emergency dispatches
+  // RTK Query with fast real-time polling (3s) for profile, verification & emergency dispatches
   const { data: profileRes, refetch: refetchProfile } = useGetVolunteerProfileQuery(undefined, {
-    pollingInterval: 4000,
+    pollingInterval: 3000,
     refetchOnMountOrArgChange: true,
   });
   const {
     data: dispatchesRes,
     isLoading: isLoadingDispatches,
     refetch: refetchDispatches,
-  } = useGetNearbyDispatchesQuery(undefined, { pollingInterval: 4000, refetchOnMountOrArgChange: true });
+  } = useGetNearbyDispatchesQuery(undefined, { pollingInterval: 3000, refetchOnMountOrArgChange: true });
 
   const {
     data: activeMissionRes,
     isLoading: isLoadingMission,
     refetch: refetchActiveMission,
-  } = useGetActiveMissionQuery(undefined, { pollingInterval: 4000, refetchOnMountOrArgChange: true });
+  } = useGetActiveMissionQuery(undefined, { pollingInterval: 3000, refetchOnMountOrArgChange: true });
 
   const { data: historyRes } = useGetMissionHistoryQuery();
 
@@ -89,7 +147,64 @@ export function MasterVolunteerDashboardComponent() {
     (profile?.bio && profile.bio.trim().length > 0)
   );
 
-  // 1. Sync Live Browser GPS Coordinates on Mount
+  // 1. Audio & Notification unlock on first user click/touch
+  useEffect(() => {
+    const unlockUserInteraction = () => {
+      getAudioContext();
+      if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "default") {
+        Notification.requestPermission().catch(() => {});
+      }
+    };
+    window.addEventListener("click", unlockUserInteraction, { once: true });
+    window.addEventListener("touchstart", unlockUserInteraction, { once: true });
+    return () => {
+      window.removeEventListener("click", unlockUserInteraction);
+      window.removeEventListener("touchstart", unlockUserInteraction);
+    };
+  }, []);
+
+  // 2. Trigger Emergency Audio Alert & Auto-Open Modal on Incoming Dispatches
+  useEffect(() => {
+    if (dispatches.length > 0) {
+      const currentIds = dispatches.map((d: any) => d.id);
+
+      // Check if there is an explicit pending dispatch request for this volunteer or a new dispatch
+      const pendingDispatch = dispatches.find(
+        (d: any) => d.myRequestStatus === "PENDING" && !dismissedAlertIds.includes(d.id)
+      );
+
+      const targetToAlert = pendingDispatch || (
+        hasInitializedRef.current
+          ? dispatches.find((d: any) => !prevDispatchIdsRef.current.includes(d.id) && !dismissedAlertIds.includes(d.id))
+          : null
+      );
+
+      if (targetToAlert && !activeMission) {
+        setIncomingAlertIncident(targetToAlert);
+        playEmergencyAlertSound();
+
+        // Browser Desktop Push Notification
+        if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
+          try {
+            new Notification(`🚨 EMERGENCY DISPATCH: ${targetToAlert.title}`, {
+              body: `${targetToAlert.severity} severity incident reported at ${targetToAlert.addressText || targetToAlert.areaName || "your area"}. Tap to accept.`,
+              icon: "/favicon.ico",
+            });
+          } catch (e) {}
+        }
+
+        toast.error(`🚨 EMERGENCY BROADCAST: ${targetToAlert.title} dispatched in your area!`, {
+          duration: 10000,
+          icon: "🚨",
+        });
+      }
+
+      hasInitializedRef.current = true;
+      prevDispatchIdsRef.current = currentIds;
+    }
+  }, [dispatches, activeMission, dismissedAlertIds]);
+
+  // 3. Sync Live Browser GPS Coordinates on Mount
   useEffect(() => {
     if (typeof window !== "undefined" && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -333,6 +448,47 @@ export function MasterVolunteerDashboardComponent() {
       )}
 
       {/* ------------------------------------------------------------------
+          1.5 PENDING EMERGENCY DISPATCH ALERT BANNER (High Visibility)
+          ------------------------------------------------------------------ */}
+      {dispatches.length > 0 && !activeMission && (
+        <div className="relative overflow-hidden rounded-3xl border-2 border-red-500 bg-linear-to-r from-red-600 via-brand-red to-red-600 p-5 text-white shadow-xl animate-pulse">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3.5">
+              <div className="grid size-12 place-items-center rounded-2xl bg-white/20 backdrop-blur-xs text-white shrink-0">
+                <BellRing className="size-6 animate-bounce" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="rounded bg-white px-2 py-0.5 text-[10px] font-black uppercase text-brand-red">
+                    Broadcast Received
+                  </span>
+                  <span className="text-xs font-mono font-bold text-red-100">
+                    High Priority Incident
+                  </span>
+                </div>
+                <p className="text-base sm:text-lg font-black mt-0.5 text-white">
+                  {dispatches[0]?.title || "Emergency Incident Alert Dispatched"}
+                </p>
+                <p className="text-xs text-red-100 font-medium mt-0.5">
+                  {dispatches[0]?.addressText || dispatches[0]?.areaName || "Near your location"} · {dispatches[0]?.distanceKm ? `${dispatches[0]?.distanceKm} km away` : "Nearby (< 100m)"}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 self-start sm:self-center">
+              <button
+                type="button"
+                onClick={() => setIncomingAlertIncident(dispatches[0])}
+                className="rounded-2xl bg-white px-5 py-3 text-xs sm:text-sm font-black text-brand-red hover:bg-red-50 shadow-md cursor-pointer transition"
+              >
+                ⚡ View &amp; Accept Mission
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ------------------------------------------------------------------
           2. ACTIVE EMERGENCY MISSION COCKPIT (STICKY TOP BANNER)
           Displayed when the volunteer has accepted an incident
           ------------------------------------------------------------------ */}
@@ -536,12 +692,27 @@ export function MasterVolunteerDashboardComponent() {
             </p>
           </div>
 
-          <button
-            onClick={() => refetchDispatches()}
-            className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-2xs self-start sm:self-center"
-          >
-            <span>Refresh Radar</span>
-          </button>
+          <div className="flex items-center gap-2 self-start sm:self-center">
+            <button
+              type="button"
+              onClick={() => {
+                playEmergencyAlertSound();
+                toast.success("🔊 Siren Audio Test: Emergency alert chime is loud and active!");
+              }}
+              className="flex items-center gap-1.5 rounded-xl border border-red-200 bg-red-50/70 px-3.5 py-2 text-xs font-bold text-brand-red hover:bg-red-100 transition shadow-2xs cursor-pointer"
+              title="Test emergency audio alarm sound"
+            >
+              <Volume2 className="size-3.5 animate-pulse" />
+              <span>Test Audio Alarm</span>
+            </button>
+
+            <button
+              onClick={() => refetchDispatches()}
+              className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-2xs cursor-pointer"
+            >
+              <span>Refresh Radar</span>
+            </button>
+          </div>
         </div>
 
         {/* Dispatches List */}
@@ -749,6 +920,126 @@ export function MasterVolunteerDashboardComponent() {
                 className="rounded-xl bg-emerald-600 px-5 py-2.5 text-xs font-extrabold text-white hover:bg-emerald-700 shadow-md shadow-emerald-600/20"
               >
                 Confirm Resolution
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ------------------------------------------------------------------
+          6. INCOMING EMERGENCY DISPATCH BROADCAST MODAL (AUTO-POPUPS)
+          ------------------------------------------------------------------ */}
+      {incomingAlertIncident && !activeMission && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm animate-in fade-in">
+          <div className="relative w-full max-w-lg rounded-3xl bg-white p-6 sm:p-7 shadow-[0_25px_60px_rgba(220,38,38,0.35)] border-4 border-brand-red">
+            {/* Header Badge */}
+            <div className="flex items-center justify-between border-b border-red-100 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="relative grid size-12 place-items-center rounded-2xl bg-brand-red text-white shadow-lg shadow-brand-red/30 animate-bounce">
+                  <BellRing className="size-6" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-0.5 text-[10px] font-black uppercase text-brand-red">
+                      <Radio className="size-2.5 animate-pulse" /> Live Broadcast
+                    </span>
+                    <span
+                      className={cn(
+                        "rounded px-2 py-0.5 text-[10px] font-black uppercase border",
+                        incomingAlertIncident.severity === "CRITICAL" && "bg-red-50 text-brand-red border-red-200",
+                        incomingAlertIncident.severity === "HIGH" && "bg-amber-50 text-amber-700 border-amber-200",
+                        incomingAlertIncident.severity === "MEDIUM" && "bg-blue-50 text-brand-blue border-blue-200"
+                      )}
+                    >
+                      {incomingAlertIncident.severity}
+                    </span>
+                  </div>
+                  <h3 className="text-base sm:text-lg font-black text-brand-navy mt-1">
+                    Incoming Emergency Dispatch Alert
+                  </h3>
+                </div>
+              </div>
+
+              <button
+                onClick={() => {
+                  setDismissedAlertIds((prev) => [...prev, incomingAlertIncident.id]);
+                  setIncomingAlertIncident(null);
+                }}
+                className="grid size-8 place-items-center rounded-xl text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition cursor-pointer"
+                title="Dismiss popup"
+              >
+                <X className="size-5" />
+              </button>
+            </div>
+
+            {/* Incident Main Body */}
+            <div className="mt-4 space-y-3">
+              <div>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                  {incomingAlertIncident.categoryName || "Incident"}
+                </span>
+                <h4 className="text-lg font-black text-brand-navy leading-tight mt-0.5">
+                  {incomingAlertIncident.title}
+                </h4>
+                <p className="mt-1 text-xs sm:text-sm text-slate-600">
+                  {incomingAlertIncident.description}
+                </p>
+              </div>
+
+              {/* Distance and Location Box */}
+              <div className="rounded-2xl bg-red-50/70 border border-red-100 p-3.5 space-y-2">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-bold text-slate-700 flex items-center gap-1.5">
+                    <MapPin className="size-4 text-brand-red shrink-0" />
+                    {incomingAlertIncident.addressText || incomingAlertIncident.areaName || "Dhaka, Bangladesh"}
+                  </span>
+                  <span className="font-extrabold text-brand-red bg-white px-2 py-0.5 rounded-lg border border-red-200">
+                    {incomingAlertIncident.distanceKm < 0.05
+                      ? "Nearby (< 50m)"
+                      : incomingAlertIncident.distanceKm < 1
+                      ? `${Math.round(incomingAlertIncident.distanceKm * 1000)}m away`
+                      : `${incomingAlertIncident.distanceKm} km away`}
+                  </span>
+                </div>
+
+                {incomingAlertIncident.reporterPhone && (
+                  <div className="flex items-center justify-between border-t border-red-100/80 pt-2 text-xs">
+                    <span className="text-slate-600">Caller: <strong>{incomingAlertIncident.reporterName || "Citizen"}</strong></span>
+                    <a
+                      href={`tel:${incomingAlertIncident.reporterPhone}`}
+                      className="font-bold text-emerald-700 hover:underline flex items-center gap-1"
+                    >
+                      <Phone className="size-3" />
+                      {incomingAlertIncident.reporterPhone}
+                    </a>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Actions: Loud Accept or Decline */}
+            <div className="mt-6 flex flex-col sm:flex-row items-center gap-2.5">
+              <button
+                onClick={() => {
+                  handleAcceptDispatch(incomingAlertIncident.id);
+                  setIncomingAlertIncident(null);
+                }}
+                disabled={isAccepting}
+                className="flex w-full sm:flex-1 items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-5 py-3.5 text-xs sm:text-sm font-black text-white hover:bg-emerald-700 transition shadow-lg shadow-emerald-600/30 cursor-pointer"
+              >
+                {isAccepting ? <Loader2 className="size-4 animate-spin" /> : <Check className="size-4" />}
+                <span>⚡ ACCEPT MISSION &amp; RESPOND NOW</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  handleDeclineDispatch(incomingAlertIncident.id);
+                  setDismissedAlertIds((prev) => [...prev, incomingAlertIncident.id]);
+                  setIncomingAlertIncident(null);
+                }}
+                className="w-full sm:w-auto rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3.5 text-xs font-bold text-slate-700 hover:bg-slate-200 transition cursor-pointer"
+              >
+                Decline
               </button>
             </div>
           </div>
