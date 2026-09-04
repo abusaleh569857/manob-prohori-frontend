@@ -33,7 +33,7 @@ export default function UserHeader() {
   const { data: session } = useSession();
 
   return (
-    <header className="sticky top-0 z-30 flex h-20 items-center justify-between border-b border-slate-200/80 bg-white/85 px-8 backdrop-blur-xl shadow-2xs">
+    <header className="sticky top-0 z-30 flex h-20 items-center justify-between border-b border-slate-200/80 bg-white/85 px-4 sm:px-6 lg:px-6 backdrop-blur-xl shadow-2xs">
       {/* 1. Left: Breadcrumb Navigation */}
       <div className="flex items-center gap-4">
         <Breadcrumb>

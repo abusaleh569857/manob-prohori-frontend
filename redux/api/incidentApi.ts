@@ -72,7 +72,9 @@ export const incidentApi = baseApi.injectEndpoints({
           resolvedIncidents: number;
           criticalActive: number;
           verifiedVolunteers: number;
+          pendingVolunteers?: number;
           verifiedDonors: number;
+          pendingDonors?: number;
           totalHospitals: number;
         };
         categoryBreakdown: Array<{ categoryName: string; count: number }>;

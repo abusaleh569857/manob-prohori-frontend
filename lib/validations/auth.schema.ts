@@ -21,6 +21,8 @@ export const signupSchema = z
       .email("Invalid email address")
       .optional()
       .or(z.literal("")),
+    accountType: z.enum(["USER", "VOLUNTEER", "BLOOD_DONOR"]),
+    bloodGroup: z.string().optional(),
     password: z
       .string()
       .min(1, "Password is required")
