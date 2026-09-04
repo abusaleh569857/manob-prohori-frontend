@@ -18,6 +18,7 @@ import {
   Eye,
   Loader2,
   ExternalLink,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -324,11 +325,20 @@ export function MasterAdminVolunteersComponent() {
         )}
       </div>
 
-      {/* Rejection Modal */}
+      {/* Reject Reason Modal */}
       {rejectingVolunteer && (
         <Dialog open={true} onOpenChange={() => setRejectingVolunteer(null)}>
-          <DialogContent className="max-w-md rounded-3xl p-6">
-            <DialogHeader>
+          <DialogContent className="max-w-md rounded-3xl p-6 relative">
+            <button
+              type="button"
+              onClick={() => setRejectingVolunteer(null)}
+              className="absolute right-5 top-5 grid size-8 place-items-center rounded-xl bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-brand-navy transition cursor-pointer"
+              title="Close"
+            >
+              <X className="size-4" />
+            </button>
+
+            <DialogHeader className="pr-8">
               <DialogTitle className="text-lg font-black text-brand-navy">
                 Reject Volunteer Application
               </DialogTitle>
@@ -372,8 +382,17 @@ export function MasterAdminVolunteersComponent() {
       {/* Document Preview Modal */}
       {previewDoc && (
         <Dialog open={true} onOpenChange={() => setPreviewDoc(null)}>
-          <DialogContent className="max-w-3xl rounded-3xl p-6">
-            <DialogHeader className="pb-3 border-b border-slate-100 flex flex-row items-center justify-between">
+          <DialogContent className="max-w-3xl rounded-3xl p-6 relative">
+            <button
+              type="button"
+              onClick={() => setPreviewDoc(null)}
+              className="absolute right-5 top-5 grid size-9 place-items-center rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-brand-navy transition cursor-pointer z-30"
+              title="Close Preview"
+            >
+              <X className="size-4.5" />
+            </button>
+
+            <DialogHeader className="pb-3 pr-14 border-b border-slate-100 flex flex-row items-center justify-between">
               <div>
                 <DialogTitle className="text-base font-bold text-brand-navy">
                   Document Preview: {previewDoc.name}
@@ -383,7 +402,7 @@ export function MasterAdminVolunteersComponent() {
                 href={previewDoc.url}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center gap-1 text-xs font-bold text-blue-600 hover:underline"
+                className="flex items-center gap-1 text-xs font-bold text-blue-600 hover:underline mr-2"
               >
                 Open in New Tab <ExternalLink className="size-3.5" />
               </a>

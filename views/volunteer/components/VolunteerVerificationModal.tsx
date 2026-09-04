@@ -108,12 +108,29 @@ export function VolunteerVerificationModal({
       }
       if (application.documents && application.documents.length > 0) {
         setDocuments(
-          application.documents.map((d) => ({
-            verificationType: (d.verificationType as any) || "TRAINING",
-            documentUrl: d.documentUrl,
-            notes: d.notes,
-            fileName: d.documentUrl.split("/").pop() || "Document",
-          }))
+          application.documents.map((d, idx) => {
+            let title = d.notes?.trim() || "";
+            if (!title && d.documentUrl) {
+              const lastPart = d.documentUrl.split("/").pop()?.split("?")[0] || "";
+              if (lastPart && !lastPart.startsWith("raw_") && lastPart.length < 35) {
+                title = decodeURIComponent(lastPart);
+              } else {
+                const typeMap: Record<string, string> = {
+                  TRAINING: "Training / Paramedic Certificate",
+                  PROFILE: "National ID / Passport Proof",
+                  EXPERIENCE: "Experience / Service Certificate",
+                  PHONE: "Phone Verification Document",
+                };
+                title = `${typeMap[d.verificationType] || "Certificate"} #${idx + 1}`;
+              }
+            }
+            return {
+              verificationType: (d.verificationType as any) || "TRAINING",
+              documentUrl: d.documentUrl,
+              notes: title,
+              fileName: title,
+            };
+          })
         );
       }
     }
@@ -155,12 +172,13 @@ export function VolunteerVerificationModal({
 
         const url = await uploadSingleFile(file);
         if (url) {
+          const defaultName = docNote.trim() || file.name.replace(/\.[^/.]+$/, "");
           setDocuments((prev) => [
             ...prev,
             {
               verificationType: docType,
               documentUrl: url,
-              notes: docNote || file.name,
+              notes: defaultName,
               fileName: file.name,
             },
           ]);

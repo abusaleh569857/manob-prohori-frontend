@@ -47,6 +47,7 @@ export interface VolunteerApplicationData {
     verificationType: string;
     status: string;
     documentUrl: string;
+    title?: string;
     notes?: string;
     submittedAt: string;
   }>;
@@ -60,6 +61,7 @@ export interface SubmitVolunteerApplicationRequest {
   documents: Array<{
     verificationType: "TRAINING" | "PROFILE" | "EXPERIENCE" | "PHONE";
     documentUrl: string;
+    title?: string;
     notes?: string;
   }>;
 }

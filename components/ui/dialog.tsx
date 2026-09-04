@@ -30,14 +30,30 @@ export function Dialog({ open, onOpenChange, children }: DialogProps) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200">
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onOpenChange?.(false);
+        }
+      }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200 overflow-y-auto"
+    >
       {/* Backdrop */}
       <div
         onClick={() => onOpenChange?.(false)}
         className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
       />
       {/* Dialog container */}
-      <div className="relative z-10 w-full">{children}</div>
+      <div
+        onClick={(e) => {
+          if (e.target === e.currentTarget) {
+            onOpenChange?.(false);
+          }
+        }}
+        className="relative z-10 w-full flex items-center justify-center"
+      >
+        {children}
+      </div>
     </div>
   );
 }
@@ -51,6 +67,7 @@ export function DialogContent({
 }) {
   return (
     <div
+      onClick={(e) => e.stopPropagation()}
       className={cn(
         "relative mx-auto w-full rounded-3xl bg-white p-6 shadow-2xl border border-slate-200/90 duration-200 animate-in zoom-in-95",
         className

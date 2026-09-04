@@ -45,19 +45,22 @@ export function MasterVolunteerDashboardComponent() {
   const [resolutionNote, setResolutionNote] = useState("");
   const [isResolvingModalOpen, setIsResolvingModalOpen] = useState(false);
 
-  // RTK Query with 5s polling for real-time emergency dispatches
-  const { data: profileRes } = useGetVolunteerProfileQuery();
+  // RTK Query with real-time polling for profile, verification & emergency dispatches
+  const { data: profileRes, refetch: refetchProfile } = useGetVolunteerProfileQuery(undefined, {
+    pollingInterval: 4000,
+    refetchOnMountOrArgChange: true,
+  });
   const {
     data: dispatchesRes,
     isLoading: isLoadingDispatches,
     refetch: refetchDispatches,
-  } = useGetNearbyDispatchesQuery(undefined, { pollingInterval: 5000 });
+  } = useGetNearbyDispatchesQuery(undefined, { pollingInterval: 4000, refetchOnMountOrArgChange: true });
 
   const {
     data: activeMissionRes,
     isLoading: isLoadingMission,
     refetch: refetchActiveMission,
-  } = useGetActiveMissionQuery(undefined, { pollingInterval: 4000 });
+  } = useGetActiveMissionQuery(undefined, { pollingInterval: 4000, refetchOnMountOrArgChange: true });
 
   const { data: historyRes } = useGetMissionHistoryQuery();
 
@@ -109,6 +112,7 @@ export function MasterVolunteerDashboardComponent() {
     try {
       const newStatus = isAvailable ? "UNAVAILABLE" : "AVAILABLE";
       await updateStatusMutation({ status: newStatus }).unwrap();
+      refetchProfile();
       toast.success(
         newStatus === "AVAILABLE"
           ? "🟢 You are now ON-DUTY and ready for emergency dispatches!"
