@@ -26,6 +26,8 @@ export function useSignup() {
       fullName: "",
       phone: "",
       email: "",
+      accountType: "USER",
+      bloodGroup: "O+",
       password: "",
       confirmPassword: "",
       agreeToTerms: true,
@@ -40,10 +42,18 @@ export function useSignup() {
         phone: values.phone,
         email: values.email || undefined,
         password: values.password,
+        accountType: values.accountType,
+        bloodGroup: values.accountType === "BLOOD_DONOR" ? values.bloodGroup : undefined,
       }).unwrap();
 
       if (response.success) {
-        toast.success("Account created! Signing you in...");
+        if (values.accountType === "VOLUNTEER") {
+          toast.success("Account created! Your volunteer application has been submitted for admin verification.");
+        } else if (values.accountType === "BLOOD_DONOR") {
+          toast.success("Account created! Your blood donor profile is registered for verification.");
+        } else {
+          toast.success("Account created! Signing you in...");
+        }
         setIsSigningIn(true);
 
         // Auto-login flow with NextAuth Auth.js credentials provider
@@ -54,8 +64,11 @@ export function useSignup() {
         });
 
         if (signInResult?.ok) {
-          toast.success("Welcome to Manob Prohori!");
-          router.push("/");
+          if (values.accountType === "VOLUNTEER") {
+            router.push("/volunteer/dashboard");
+          } else {
+            router.push("/dashboard");
+          }
           router.refresh();
         } else {
           toast.info("Account created. Please log in with your credentials.");

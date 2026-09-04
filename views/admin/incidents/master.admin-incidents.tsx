@@ -21,6 +21,7 @@ import {
   Check,
   Loader2,
   ImageIcon,
+  Layers,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -34,6 +35,7 @@ export function MasterAdminIncidentsComponent() {
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState<"ALL" | "REPORTED" | "DISPATCHING" | "IN_PROGRESS" | "RESOLVED" | "REJECTED">("REPORTED");
   const [selectedIncident, setSelectedIncident] = useState<any | null>(null);
+  const [modalInitialTab, setModalInitialTab] = useState<"DETAILS" | "RADAR" | "RESPONDERS">("DETAILS");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // RTK Query with 5s polling for real-time live telemetry
@@ -44,6 +46,7 @@ export function MasterAdminIncidentsComponent() {
     refetch,
   } = useGetAllIncidentsQuery(undefined, {
     pollingInterval: 5000,
+    refetchOnMountOrArgChange: true,
   });
 
   const [updateStatusMutation] = useUpdateIncidentStatusMutation();
@@ -89,8 +92,9 @@ export function MasterAdminIncidentsComponent() {
     }
   };
 
-  const openTriageModal = (incident: any) => {
+  const openTriageModal = (incident: any, tab: "DETAILS" | "RADAR" | "RESPONDERS" = "DETAILS") => {
     setSelectedIncident(incident);
+    setModalInitialTab(tab);
     setIsModalOpen(true);
   };
 
@@ -115,7 +119,15 @@ export function MasterAdminIncidentsComponent() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
+          <Link
+            href="/admin/categories"
+            className="flex items-center gap-1.5 rounded-2xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-brand-navy hover:bg-slate-50 transition shadow-2xs cursor-pointer"
+          >
+            <Layers className="size-4 text-brand-red" />
+            <span>Manage Categories</span>
+          </Link>
+
           <span className="inline-flex items-center gap-2 rounded-full bg-red-50 border border-red-200/80 px-3.5 py-1.5 text-xs font-bold text-brand-red shadow-xs">
             <Radio className="size-3.5 animate-pulse" /> Live Telemetry Feed
           </span>
@@ -309,54 +321,54 @@ export function MasterAdminIncidentsComponent() {
                     </div>
 
                     {/* Right Actions: 1-Click Fast Verification & Call */}
-                    <div className="flex flex-wrap items-center gap-2.5 border-t border-slate-100 pt-3 lg:border-t-0 lg:pt-0 shrink-0">
+                    <div className="flex flex-wrap items-center gap-2 border-t border-slate-100 pt-3 lg:border-t-0 lg:pt-0 shrink-0">
                       {/* 1-Click Call Reporter */}
                       {incident.reporterPhone && (
                         <a
                           href={`tel:${incident.reporterPhone}`}
                           title="Call Reporter to verify"
-                          className="flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-2.5 text-xs font-bold text-emerald-700 hover:bg-emerald-100 transition shadow-2xs"
+                          className="flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-700 hover:bg-emerald-100 transition shadow-2xs"
                         >
                           <Phone className="size-3.5" />
                           <span>Call Caller</span>
                         </a>
                       )}
 
-                      {/* 1-Click Verify & Dispatch Responders */}
+                      {/* Open Geo-Radar & Dispatch Button */}
+                      <button
+                        onClick={() => openTriageModal(incident, "RADAR")}
+                        className="flex items-center gap-1.5 rounded-xl border border-red-200 bg-red-50/80 px-3 py-2 text-xs font-black text-brand-red hover:bg-red-100 hover:border-red-300 transition shadow-2xs cursor-pointer"
+                        title="Scan nearby volunteers and dispatch emergency alert"
+                      >
+                        <Radio className="size-3.5 text-brand-red animate-pulse" />
+                        <span>Radar &amp; Dispatch</span>
+                      </button>
+
+                      {/* 1-Click Verify & Fast Dispatch */}
                       {incident.status === "REPORTED" && (
                         <button
                           onClick={() => handleStatusUpdate(incident.id, "DISPATCHING", "Verified by Admin")}
-                          className="flex items-center gap-1.5 rounded-xl bg-brand-red px-4 py-2.5 text-xs font-extrabold text-white shadow-md shadow-brand-red/25 hover:bg-brand-red-dark transition cursor-pointer"
+                          className="flex items-center gap-1.5 rounded-xl bg-brand-red px-3 py-2 text-xs font-extrabold text-white shadow-md shadow-brand-red/25 hover:bg-brand-red-dark transition cursor-pointer"
                         >
-                          <Check className="size-4" />
-                          <span>Verify &amp; Dispatch</span>
-                        </button>
-                      )}
-
-                      {incident.status === "DISPATCHING" && (
-                        <button
-                          onClick={() => handleStatusUpdate(incident.id, "IN_PROGRESS", "Responders On-Scene")}
-                          className="flex items-center gap-1.5 rounded-xl bg-brand-navy px-4 py-2.5 text-xs font-bold text-white shadow-md hover:bg-slate-800 transition cursor-pointer"
-                        >
-                          <CheckCircle2 className="size-4" />
-                          <span>Mark On-Scene</span>
+                          <Check className="size-3.5" />
+                          <span>Verify</span>
                         </button>
                       )}
 
                       {incident.status !== "RESOLVED" && incident.status !== "REJECTED" && (
                         <button
                           onClick={() => handleStatusUpdate(incident.id, "RESOLVED", "Resolved by Admin")}
-                          className="flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-2.5 text-xs font-bold text-emerald-700 hover:bg-emerald-100 transition cursor-pointer"
+                          className="flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-700 hover:bg-emerald-100 transition cursor-pointer"
                         >
-                          <CheckCircle2 className="size-4" />
+                          <CheckCircle2 className="size-3.5" />
                           <span>Resolve</span>
                         </button>
                       )}
 
                       {/* Open Detailed Triage Drawer */}
                       <button
-                        onClick={() => openTriageModal(incident)}
-                        className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-brand-navy transition shadow-2xs cursor-pointer"
+                        onClick={() => openTriageModal(incident, "DETAILS")}
+                        className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-brand-navy transition shadow-2xs cursor-pointer"
                       >
                         <Eye className="size-3.5 text-slate-400" />
                         <span>Inspect</span>
@@ -374,6 +386,7 @@ export function MasterAdminIncidentsComponent() {
       <IncidentTriageModal
         incident={selectedIncident}
         isOpen={isModalOpen}
+        initialTab={modalInitialTab}
         onClose={() => {
           setIsModalOpen(false);
           setSelectedIncident(null);

@@ -20,7 +20,7 @@ import {
   ChartLegendContent,
   type ChartConfig,
 } from "@/components/ui/chart";
-import { TrendingUp, Activity, PieChart as PieIcon, BarChart3 } from "lucide-react";
+import { TrendingUp, Activity, PieChart as PieIcon, BarChart3, MoveRight } from "lucide-react";
 
 interface AdminIncidentChartsProps {
   categoryBreakdown?: Array<{ categoryName: string; count: number }>;
@@ -69,17 +69,32 @@ const SEVERITY_COLORS: Record<string, string> = {
   LOW: "#10b981",
 };
 
+const PALETTE = [
+  "#dc2626",
+  "#ea580c",
+  "#f59e0b",
+  "#10b981",
+  "#06b6d4",
+  "#3b82f6",
+  "#6366f1",
+  "#8b5cf6",
+  "#ec4899",
+  "#f43f5e",
+  "#14b8a6",
+  "#64748b",
+];
+
 export function AdminIncidentCharts({
   categoryBreakdown = [],
   severityDistribution = [],
 }: AdminIncidentChartsProps) {
-  // Format dynamic categories or fallback
+  // Format dynamic categories with dynamic colors
   const displayCategories =
     categoryBreakdown.length > 0
       ? categoryBreakdown.map((c, i) => ({
           category: c.categoryName,
           count: Number(c.count),
-          fill: ["#dc2626", "#f97316", "#3b82f6", "#06b6d4", "#8b5cf6", "#64748b"][i % 6],
+          fill: PALETTE[i % PALETTE.length],
         }))
       : [
           { category: "Road Accident", count: 12, fill: "#dc2626" },
@@ -88,7 +103,7 @@ export function AdminIncidentCharts({
           { category: "Flood Rescue", count: 5, fill: "#06b6d4" },
         ];
 
-  // Format dynamic severities or fallback
+  // Format dynamic severities
   const displaySeverities =
     severityDistribution.length > 0
       ? severityDistribution.map((s) => ({
@@ -102,6 +117,8 @@ export function AdminIncidentCharts({
           { name: "MEDIUM", value: 15, fill: "#3b82f6" },
           { name: "LOW", value: 8, fill: "#10b981" },
         ];
+
+  const minChartWidth = Math.max(displayCategories.length * 110, 650);
 
   return (
     <div className="space-y-6">
@@ -181,32 +198,74 @@ export function AdminIncidentCharts({
         </div>
       </div>
 
-      {/* Bar Chart: Incidents by Category */}
+      {/* Bar Chart: Incidents by Category (Horizontally Scrollable) */}
       <div className="rounded-2xl border border-slate-200/90 bg-white/90 p-5 backdrop-blur-xl shadow-xs">
-        <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+        <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-100">
           <div>
-            <h3 className="text-sm font-bold text-brand-navy">Incidents by Category (Database Active)</h3>
-            <p className="text-xs text-slate-400 mt-0.5">Distribution across registered emergency categories</p>
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-bold text-brand-navy">
+                Incidents by Category (Database Active)
+              </h3>
+              <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-extrabold text-slate-600">
+                {displayCategories.length} Categories
+              </span>
+            </div>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Live distribution across all registered emergency incident categories
+            </p>
           </div>
-          <div className="grid size-9 place-items-center rounded-xl bg-slate-100 text-slate-600">
-            <BarChart3 className="size-4.5 text-brand-red" />
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-medium text-slate-400 flex items-center gap-1">
+              Scroll <MoveRight className="size-3" />
+            </span>
+            <div className="grid size-9 place-items-center rounded-xl bg-slate-100 text-slate-600">
+              <BarChart3 className="size-4.5 text-brand-red" />
+            </div>
           </div>
         </div>
 
-        <div className="mt-4 h-64 w-full">
-          <ChartContainer config={categoryChartConfig} className="h-full w-full">
-            <BarChart data={displayCategories} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-              <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#f1f5f9" />
-              <XAxis dataKey="category" tickLine={false} axisLine={false} tickMargin={8} fontSize={11} stroke="#94a3b8" />
-              <YAxis tickLine={false} axisLine={false} tickMargin={8} fontSize={11} stroke="#94a3b8" />
-              <ChartTooltip content={<ChartTooltipContent />} />
-              <Bar dataKey="count" radius={[8, 8, 0, 0]}>
-                {displayCategories.map((entry, index) => (
-                  <Cell key={`bar-${index}`} fill={entry.fill} />
-                ))}
-              </Bar>
-            </BarChart>
-          </ChartContainer>
+        {/* Horizontally Scrollable Bar Chart Viewport */}
+        <div className="mt-4 w-full overflow-x-auto pb-3 pt-1 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-slate-100">
+          <div
+            className="h-68"
+            style={{
+              minWidth: `${minChartWidth}px`,
+            }}
+          >
+            <ChartContainer config={categoryChartConfig} className="h-full w-full">
+              <BarChart
+                data={displayCategories}
+                margin={{ top: 10, right: 30, left: -20, bottom: 35 }}
+              >
+                <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#f1f5f9" />
+                <XAxis
+                  dataKey="category"
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={12}
+                  interval={0}
+                  fontSize={11}
+                  stroke="#475569"
+                  angle={-22}
+                  textAnchor="end"
+                />
+                <YAxis
+                  allowDecimals={false}
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                  fontSize={11}
+                  stroke="#94a3b8"
+                />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Bar dataKey="count" radius={[8, 8, 0, 0]} maxBarSize={52}>
+                  {displayCategories.map((entry, index) => (
+                    <Cell key={`bar-${index}`} fill={entry.fill} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ChartContainer>
+          </div>
         </div>
       </div>
     </div>

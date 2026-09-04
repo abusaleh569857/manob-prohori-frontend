@@ -2,6 +2,9 @@ import { baseApi } from "./baseApi";
 import type { ApiResponse } from "@/types/auth.types";
 import type {
   IncidentCategory,
+  AdminIncidentCategory,
+  CreateCategoryInput,
+  UpdateCategoryInput,
   Incident,
   IncidentStatusHistoryItem,
   CreateIncidentRequest,
@@ -17,6 +20,48 @@ export const incidentApi = baseApi.injectEndpoints({
         method: "GET",
       }),
       providesTags: ["Incident"],
+    }),
+
+    getAdminIncidentCategories: builder.query<ApiResponse<AdminIncidentCategory[]>, void>({
+      query: () => ({
+        url: "/incident-categories/admin/all",
+        method: "GET",
+      }),
+      providesTags: ["Incident"],
+    }),
+
+    createIncidentCategory: builder.mutation<ApiResponse<AdminIncidentCategory>, CreateCategoryInput>({
+      query: (body) => ({
+        url: "/incident-categories/admin",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Incident"],
+    }),
+
+    updateIncidentCategory: builder.mutation<ApiResponse<AdminIncidentCategory>, UpdateCategoryInput>({
+      query: ({ id, ...body }) => ({
+        url: `/incident-categories/admin/${id}`,
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: ["Incident"],
+    }),
+
+    toggleIncidentCategoryStatus: builder.mutation<ApiResponse<AdminIncidentCategory>, number>({
+      query: (id) => ({
+        url: `/incident-categories/admin/${id}/toggle`,
+        method: "PATCH",
+      }),
+      invalidatesTags: ["Incident"],
+    }),
+
+    deleteIncidentCategory: builder.mutation<ApiResponse<null>, number>({
+      query: (id) => ({
+        url: `/incident-categories/admin/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Incident"],
     }),
 
     getPublicVerifiedIncidents: builder.query<
@@ -72,7 +117,9 @@ export const incidentApi = baseApi.injectEndpoints({
           resolvedIncidents: number;
           criticalActive: number;
           verifiedVolunteers: number;
+          pendingVolunteers?: number;
           verifiedDonors: number;
+          pendingDonors?: number;
           totalHospitals: number;
         };
         categoryBreakdown: Array<{ categoryName: string; count: number }>;
@@ -106,6 +153,93 @@ export const incidentApi = baseApi.injectEndpoints({
       providesTags: (result, error, id) => [{ type: "Incident", id: `${id}-history` }],
     }),
 
+    getNearbyVolunteersForIncident: builder.query<
+      ApiResponse<{
+        incident: any;
+        radiusKm: number;
+        totalVolunteersCount: number;
+        matchedWithinRadiusCount: number;
+        volunteers: Array<{
+          userId: number;
+          name: string;
+          phone: string;
+          email: string;
+          district?: string;
+          upazila?: string;
+          volunteerStatus: "AVAILABLE" | "UNAVAILABLE" | "SUSPENDED";
+          verificationStatus: string;
+          serviceRadiusKm: number;
+          experienceYears?: number;
+          distanceKm: number;
+          isWithinRadius: boolean;
+          isDispatched: boolean;
+          dispatchStatus?: string | null;
+          skills: Array<{ name: string; level: string }>;
+        }>;
+      }>,
+      { incidentId: number | string; radius?: number }
+    >({
+      query: ({ incidentId, radius = 5 }) => ({
+        url: `/incidents/${incidentId}/nearby-volunteers`,
+        method: "GET",
+        params: { radius },
+      }),
+      providesTags: (result, error, { incidentId }) => [
+        { type: "Incident", id: `${incidentId}-radar` },
+        "Volunteer",
+      ],
+    }),
+
+    dispatchIncidentToVolunteers: builder.mutation<
+      ApiResponse<{ success: boolean; incidentId: number; dispatchedCount: number; message: string }>,
+      { incidentId: number | string; volunteerUserIds: number[]; note?: string }
+    >({
+      query: ({ incidentId, ...body }) => ({
+        url: `/incidents/${incidentId}/dispatch`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: (result, error, { incidentId }) => [
+        "Incident",
+        "Volunteer",
+        { type: "Incident", id: incidentId },
+        { type: "Incident", id: `${incidentId}-radar` },
+        { type: "Incident", id: `${incidentId}-responders` },
+      ],
+    }),
+
+    getIncidentDispatchedResponders: builder.query<
+      ApiResponse<
+        Array<{
+          requestId: number;
+          volunteerUserId: number;
+          requestStatus: string;
+          respondedAt: string;
+          declineReason?: string;
+          responseId?: number;
+          missionStatus?: string;
+          acceptedAt?: string;
+          enRouteAt?: string;
+          arrivedAt?: string;
+          completedAt?: string;
+          volunteerName: string;
+          volunteerPhone: string;
+          volunteerEmail: string;
+          dutyStatus: string;
+        }>
+      >,
+      number | string
+    >({
+      query: (incidentId) => ({
+        url: `/incidents/${incidentId}/responders`,
+        method: "GET",
+      }),
+      providesTags: (result, error, incidentId) => [
+        { type: "Incident", id: `${incidentId}-responders` },
+        "Volunteer",
+      ],
+    }),
+
     updateIncidentStatus: builder.mutation<
       ApiResponse<{ oldStatus: IncidentStatus; newStatus: IncidentStatus }>,
       { id: number | string; status: IncidentStatus; note?: string }
@@ -117,8 +251,11 @@ export const incidentApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: (result, error, { id }) => [
         "Incident",
+        "Volunteer",
         { type: "Incident", id },
         { type: "Incident", id: `${id}-history` },
+        { type: "Incident", id: `${id}-radar` },
+        { type: "Incident", id: `${id}-responders` },
       ],
     }),
   }),
@@ -127,6 +264,11 @@ export const incidentApi = baseApi.injectEndpoints({
 
 export const {
   useGetIncidentCategoriesQuery,
+  useGetAdminIncidentCategoriesQuery,
+  useCreateIncidentCategoryMutation,
+  useUpdateIncidentCategoryMutation,
+  useToggleIncidentCategoryStatusMutation,
+  useDeleteIncidentCategoryMutation,
   useGetPublicVerifiedIncidentsQuery,
   useCreateIncidentMutation,
   useGetMyIncidentsQuery,
@@ -134,5 +276,8 @@ export const {
   useGetAdminOverviewStatsQuery,
   useGetIncidentByIdQuery,
   useGetIncidentHistoryQuery,
+  useGetNearbyVolunteersForIncidentQuery,
+  useDispatchIncidentToVolunteersMutation,
+  useGetIncidentDispatchedRespondersQuery,
   useUpdateIncidentStatusMutation,
 } = incidentApi;

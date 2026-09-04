@@ -16,7 +16,7 @@ export default function AdminRootLayout({
       {/* Main Content Viewport */}
       <div className="flex flex-1 flex-col min-w-0">
         <AdminHeader />
-        <main className="flex-1 p-5 sm:p-6 lg:p-8 max-w-360 w-full mx-auto space-y-6">
+        <main className="flex-1 w-full px-4 sm:px-6 lg:px-6 py-5 sm:py-6 space-y-6">
           {children}
         </main>
       </div>

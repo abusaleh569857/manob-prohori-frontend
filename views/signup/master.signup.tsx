@@ -20,20 +20,21 @@ import {
   User,
   Zap,
   Loader2,
+  Siren,
+  Droplets,
+  Info,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import {
   signupSchema,
   type SignupFormValues,
 } from "@/lib/validations/auth.schema";
 import { useRegisterMutation } from "@/redux/api/authApi";
 
-// ============================================================================
-// Master Signup View Component
-// Clean two-column layout: Form on the left and hero image with floating cards on the right.
-// ============================================================================
+const BLOOD_GROUPS = ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"];
+
 export function MasterSignupComponent() {
-  // Password visibility toggle states
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSigningIn, setIsSigningIn] = useState(false);
@@ -44,6 +45,8 @@ export function MasterSignupComponent() {
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
@@ -51,12 +54,16 @@ export function MasterSignupComponent() {
       fullName: "",
       phone: "",
       email: "",
+      accountType: "USER",
+      bloodGroup: "O+",
       password: "",
       confirmPassword: "",
       agreeToTerms: true,
     },
     mode: "onTouched",
   });
+
+  const selectedAccountType = watch("accountType") || "USER";
 
   const onSubmit = async (values: SignupFormValues) => {
     try {
@@ -65,10 +72,18 @@ export function MasterSignupComponent() {
         phone: values.phone,
         email: values.email || undefined,
         password: values.password,
+        accountType: values.accountType,
+        bloodGroup: values.accountType === "BLOOD_DONOR" ? values.bloodGroup : undefined,
       }).unwrap();
 
       if (response.success) {
-        toast.success("Account created successfully! Signing you in...");
+        if (values.accountType === "VOLUNTEER") {
+          toast.success("Account created! Your volunteer application has been submitted for admin verification.");
+        } else if (values.accountType === "BLOOD_DONOR") {
+          toast.success("Account created! Your blood donor profile is registered for verification.");
+        } else {
+          toast.success("Account created successfully! Signing you in...");
+        }
         setIsSigningIn(true);
 
         const signInResult = await signIn("credentials", {
@@ -79,7 +94,11 @@ export function MasterSignupComponent() {
 
         if (signInResult?.ok) {
           toast.success("Welcome to Manob Prohori!");
-          router.push("/");
+          if (values.accountType === "VOLUNTEER") {
+            router.push("/volunteer/dashboard");
+          } else {
+            router.push("/dashboard");
+          }
           router.refresh();
         } else {
           toast.info("Account created. Please sign in to continue.");
@@ -137,7 +156,7 @@ export function MasterSignupComponent() {
               <button
                 type="button"
                 onClick={() => signIn("google")}
-                className="flex w-full items-center justify-center gap-3 rounded-xl bg-brand-red px-4 py-2.5 text-sm font-bold text-white shadow-md shadow-brand-red/20 transition hover:bg-brand-red-dark active:scale-[0.99]"
+                className="flex w-full items-center justify-center gap-3 rounded-xl bg-brand-red px-4 py-2.5 text-sm font-bold text-white shadow-md shadow-brand-red/20 transition hover:bg-brand-red-dark active:scale-[0.99] cursor-pointer"
               >
                 <div className="grid size-5.5 place-items-center rounded bg-white shadow-xs">
                   <svg className="size-3.5" viewBox="0 0 24 24">
@@ -165,7 +184,7 @@ export function MasterSignupComponent() {
               {/* Facebook Sign Up Button */}
               <button
                 type="button"
-                className="flex w-full items-center justify-center gap-3 rounded-xl border border-brand-border bg-white px-4 py-2.5 text-sm font-bold text-slate-700 shadow-xs transition hover:bg-slate-50 active:scale-[0.99]"
+                className="flex w-full items-center justify-center gap-3 rounded-xl border border-brand-border bg-white px-4 py-2.5 text-sm font-bold text-slate-700 shadow-xs transition hover:bg-slate-50 active:scale-[0.99] cursor-pointer"
               >
                 <svg
                   className="size-5 text-[#1877F2] fill-current"
@@ -188,13 +207,87 @@ export function MasterSignupComponent() {
             </div>
 
             {/* Registration Form Fields */}
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-3.5">
+              {/* --------------------------------------------------------------
+                  1. ROLE SELECTION (Citizen, Volunteer, Blood Donor)
+                  -------------------------------------------------------------- */}
+              <div>
+                <label className="mb-1.5 block text-xs font-bold text-brand-text-primary">
+                  I want to join as: <span className="text-brand-red">*</span>
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {/* Option 1: Citizen */}
+                  <button
+                    type="button"
+                    onClick={() => setValue("accountType", "USER")}
+                    className={cn(
+                      "flex flex-col items-center rounded-2xl border p-2.5 text-center transition cursor-pointer",
+                      selectedAccountType === "USER"
+                        ? "border-brand-navy bg-slate-900 text-white shadow-md ring-2 ring-slate-900/10"
+                        : "border-brand-border bg-white text-slate-600 hover:bg-slate-50"
+                    )}
+                  >
+                    <User className={cn("size-5", selectedAccountType === "USER" ? "text-white" : "text-slate-500")} />
+                    <span className="mt-1 text-xs font-extrabold">Citizen</span>
+                    <span className={cn("text-[10px]", selectedAccountType === "USER" ? "text-slate-300" : "text-slate-400")}>
+                      General User
+                    </span>
+                  </button>
+
+                  {/* Option 2: Volunteer Responder */}
+                  <button
+                    type="button"
+                    onClick={() => setValue("accountType", "VOLUNTEER")}
+                    className={cn(
+                      "flex flex-col items-center rounded-2xl border p-2.5 text-center transition cursor-pointer",
+                      selectedAccountType === "VOLUNTEER"
+                        ? "border-brand-red bg-brand-red text-white shadow-md ring-2 ring-brand-red/15"
+                        : "border-brand-border bg-white text-slate-600 hover:bg-slate-50"
+                    )}
+                  >
+                    <Siren className={cn("size-5", selectedAccountType === "VOLUNTEER" ? "text-white" : "text-brand-red")} />
+                    <span className="mt-1 text-xs font-extrabold">Volunteer</span>
+                    <span className={cn("text-[10px]", selectedAccountType === "VOLUNTEER" ? "text-red-100" : "text-slate-400")}>
+                      Responder
+                    </span>
+                  </button>
+
+                  {/* Option 3: Blood Donor */}
+                  <button
+                    type="button"
+                    onClick={() => setValue("accountType", "BLOOD_DONOR")}
+                    className={cn(
+                      "flex flex-col items-center rounded-2xl border p-2.5 text-center transition cursor-pointer",
+                      selectedAccountType === "BLOOD_DONOR"
+                        ? "border-rose-600 bg-rose-600 text-white shadow-md ring-2 ring-rose-600/15"
+                        : "border-brand-border bg-white text-slate-600 hover:bg-slate-50"
+                    )}
+                  >
+                    <Droplets className={cn("size-5", selectedAccountType === "BLOOD_DONOR" ? "text-white" : "text-rose-500")} />
+                    <span className="mt-1 text-xs font-extrabold">Blood Donor</span>
+                    <span className={cn("text-[10px]", selectedAccountType === "BLOOD_DONOR" ? "text-rose-100" : "text-slate-400")}>
+                      Life Saver
+                    </span>
+                  </button>
+                </div>
+
+                {/* Verification Notice */}
+                {selectedAccountType !== "USER" && (
+                  <div className="mt-2 flex items-center gap-2 rounded-xl bg-amber-50 border border-amber-200/80 p-2.5 text-xs text-amber-800">
+                    <Info className="size-4 shrink-0 text-amber-600" />
+                    <span>
+                      <strong>Verification Notice:</strong> {selectedAccountType === "VOLUNTEER" ? "Volunteer" : "Blood Donor"} registrations require Admin Verification upon signup.
+                    </span>
+                  </div>
+                )}
+              </div>
+
               {/* Row 1: Full Name & Email Address */}
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {/* Full Name */}
                 <div>
                   <label className="mb-1 block text-xs font-bold text-brand-text-primary">
-                    Full Name
+                    Full Name <span className="text-brand-red">*</span>
                   </label>
                   <div className="relative">
                     <User className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-brand-text-muted" />
@@ -219,13 +312,13 @@ export function MasterSignupComponent() {
                 {/* Email Address */}
                 <div>
                   <label className="mb-1 block text-xs font-bold text-brand-text-primary">
-                    Email Address
+                    Email Address <span className="text-xs font-normal text-slate-400">(Optional)</span>
                   </label>
                   <div className="relative">
                     <Mail className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-brand-text-muted" />
                     <input
                       type="email"
-                      placeholder="Enter your email address"
+                      placeholder="Enter your email"
                       {...register("email")}
                       className={`w-full rounded-xl border bg-slate-50/50 py-2.5 pl-10 pr-3 text-sm font-medium text-brand-text-primary placeholder-slate-400 transition focus:bg-white focus:outline-none focus:ring-2 ${
                         errors.email
@@ -242,34 +335,59 @@ export function MasterSignupComponent() {
                 </div>
               </div>
 
-              {/* Row 2: Phone Number with Country Code */}
-              <div>
-                <label className="mb-1 block text-xs font-bold text-brand-text-primary">
-                  Phone Number
-                </label>
-                <div
-                  className={`flex rounded-xl border bg-slate-50/50 transition focus-within:bg-white focus-within:ring-2 ${
-                    errors.phone
-                      ? "border-brand-red focus-within:border-brand-red focus-within:ring-brand-red/20"
-                      : "border-brand-border focus-within:border-brand-red focus-within:bg-white focus-within:ring-brand-red/20"
-                  }`}
-                >
-                  <div className="flex items-center gap-1.5 border-r border-brand-border px-3 py-2.5 text-brand-text-primary">
-                    <Phone className="size-3.5 text-brand-text-muted" />
-                    <span className="text-xs font-bold">+880</span>
-                    <ChevronDown className="size-3 text-brand-text-muted" />
+              {/* Row 2: Phone Number & Conditional Blood Group */}
+              <div className={cn("grid grid-cols-1 gap-3", selectedAccountType === "BLOOD_DONOR" && "sm:grid-cols-3")}>
+                {/* Phone Number */}
+                <div className={selectedAccountType === "BLOOD_DONOR" ? "sm:col-span-2" : ""}>
+                  <label className="mb-1 block text-xs font-bold text-brand-text-primary">
+                    Phone Number <span className="text-brand-red">*</span>
+                  </label>
+                  <div
+                    className={`flex rounded-xl border bg-slate-50/50 transition focus-within:bg-white focus-within:ring-2 ${
+                      errors.phone
+                        ? "border-brand-red focus-within:border-brand-red focus-within:ring-brand-red/20"
+                        : "border-brand-border focus-within:border-brand-red focus-within:bg-white focus-within:ring-brand-red/20"
+                    }`}
+                  >
+                    <div className="flex items-center gap-1.5 border-r border-brand-border px-3 py-2.5 text-brand-text-primary">
+                      <Phone className="size-3.5 text-brand-text-muted" />
+                      <span className="text-xs font-bold">+880</span>
+                      <ChevronDown className="size-3 text-brand-text-muted" />
+                    </div>
+                    <input
+                      type="tel"
+                      placeholder="017XXXXXXXX"
+                      {...register("phone")}
+                      className="w-full bg-transparent px-3.5 py-2.5 text-sm font-medium text-brand-text-primary placeholder-slate-400 focus:outline-none"
+                    />
                   </div>
-                  <input
-                    type="tel"
-                    placeholder="Enter your phone number"
-                    {...register("phone")}
-                    className="w-full bg-transparent px-3.5 py-2.5 text-sm font-medium text-brand-text-primary placeholder-slate-400 focus:outline-none"
-                  />
+                  {errors.phone && (
+                    <p className="mt-1 text-[11px] font-medium text-brand-red">
+                      {errors.phone.message}
+                    </p>
+                  )}
                 </div>
-                {errors.phone && (
-                  <p className="mt-1 text-[11px] font-medium text-brand-red">
-                    {errors.phone.message}
-                  </p>
+
+                {/* Blood Group Select for Blood Donors */}
+                {selectedAccountType === "BLOOD_DONOR" && (
+                  <div>
+                    <label className="mb-1 block text-xs font-bold text-brand-text-primary">
+                      Blood Group <span className="text-brand-red">*</span>
+                    </label>
+                    <div className="relative">
+                      <select
+                        {...register("bloodGroup")}
+                        className="w-full appearance-none rounded-xl border border-brand-border bg-slate-50/50 px-3.5 py-2.5 text-sm font-extrabold text-brand-navy focus:bg-white focus:border-brand-red focus:outline-none focus:ring-2 focus:ring-brand-red/20"
+                      >
+                        {BLOOD_GROUPS.map((bg) => (
+                          <option key={bg} value={bg}>
+                            {bg}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-brand-text-muted" />
+                    </div>
+                  </div>
                 )}
               </div>
 
@@ -278,7 +396,7 @@ export function MasterSignupComponent() {
                 {/* Password */}
                 <div>
                   <label className="mb-1 block text-xs font-bold text-brand-text-primary">
-                    Password
+                    Password <span className="text-brand-red">*</span>
                   </label>
                   <div className="relative">
                     <Lock className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-brand-text-muted" />
@@ -295,7 +413,7 @@ export function MasterSignupComponent() {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-text-muted hover:text-brand-text-primary"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-text-muted hover:text-brand-text-primary cursor-pointer"
                     >
                       {showPassword ? (
                         <EyeOff className="size-4" />
@@ -314,7 +432,7 @@ export function MasterSignupComponent() {
                 {/* Confirm Password */}
                 <div>
                   <label className="mb-1 block text-xs font-bold text-brand-text-primary">
-                    Confirm Password
+                    Confirm Password <span className="text-brand-red">*</span>
                   </label>
                   <div className="relative">
                     <Lock className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-brand-text-muted" />
@@ -333,7 +451,7 @@ export function MasterSignupComponent() {
                       onClick={() =>
                         setShowConfirmPassword(!showConfirmPassword)
                       }
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-text-muted hover:text-brand-text-primary"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-text-muted hover:text-brand-text-primary cursor-pointer"
                     >
                       {showConfirmPassword ? (
                         <EyeOff className="size-4" />
@@ -357,7 +475,7 @@ export function MasterSignupComponent() {
                     type="checkbox"
                     id="terms"
                     {...register("agreeToTerms")}
-                    className="size-4 rounded border-brand-border text-brand-red accent-brand-red focus:ring-brand-red"
+                    className="size-4 rounded border-brand-border text-brand-red accent-brand-red focus:ring-brand-red cursor-pointer"
                   />
                   <label
                     htmlFor="terms"
@@ -390,138 +508,102 @@ export function MasterSignupComponent() {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="mt-2 w-full rounded-xl bg-brand-red py-3.5 text-sm font-extrabold text-white shadow-lg shadow-brand-red/25 transition hover:bg-brand-red-dark active:scale-[0.99] disabled:opacity-70"
+                className="mt-2 w-full rounded-xl bg-brand-red py-3.5 text-sm font-extrabold text-white shadow-lg shadow-brand-red/25 transition hover:bg-brand-red-dark active:scale-[0.99] disabled:opacity-70 cursor-pointer"
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center gap-2">
                     <Loader2 className="size-4 animate-spin" />
-                    Creating Account...
+                    Creating Account &amp; Signing In...
                   </span>
                 ) : (
-                  "Create Account"
+                  `Create ${selectedAccountType === "VOLUNTEER" ? "Volunteer" : selectedAccountType === "BLOOD_DONOR" ? "Blood Donor" : "Citizen"} Account`
                 )}
               </Button>
             </form>
-          </div>
 
-          {/* Footer Sign in Link */}
-          <div className="mt-5 text-center text-xs font-semibold text-brand-text-secondary">
-            Already have an account?{" "}
-            <Link
-              href="/signin"
-              className="font-extrabold text-brand-red hover:underline"
-            >
-              Sign in
-            </Link>
+            {/* Bottom Sign In Link */}
+            <div className="mt-5 text-center text-xs text-brand-text-secondary">
+              Already have an account?{" "}
+              <Link
+                href="/signin"
+                className="font-bold text-brand-red hover:underline"
+              >
+                Sign in
+              </Link>
+            </div>
           </div>
         </div>
 
         {/* ====================================================================
-            RIGHT COLUMN: HERO RESCUE IMAGE ASSET & FLOATING CARDS
+            RIGHT COLUMN: HERO SHOWCASE WITH FLOATING BADGES
             ==================================================================== */}
-        <div className="relative hidden min-h-180 overflow-hidden lg:block">
-          {/* Background Rescue Operations Image */}
-          <Image
-            src="/images/signup-bg-image.png"
-            alt="Manob Prohori Rescue Team"
-            fill
-            priority
-            className="pointer-events-none object-cover object-center"
-          />
+        <div className="relative hidden lg:block">
+          {/* Background Visual Asset */}
+          <div className="relative h-full w-full">
+            <Image
+              src="/images/signup-bg-image.png"
+              alt="Community Volunteers in Action"
+              fill
+              priority
+              className="object-cover object-center"
+            />
+            {/* Ambient Multi-layer Gradient Overlay */}
+            <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent" />
+            <div className="absolute inset-0 bg-linear-to-r from-black/50 via-transparent to-transparent" />
+          </div>
 
-          {/* Top-Left Floating Motivation Quote & Shield Logo */}
-          <div className="absolute left-8 top-8 z-10 max-w-85">
-            <div className="flex items-start gap-3.5">
-              {/* Circular Logo Container */}
-              <div className="grid size-12 shrink-0 place-items-center rounded-full bg-brand-red-soft p-2 shadow-xs backdrop-blur-sm">
-                <Image
-                  src="/images/manob-prohori-logo1.png"
-                  alt="Manob Prohori Shield"
-                  width={36}
-                  height={36}
-                  className="size-7 object-contain"
-                />
-              </div>
-              <div>
-                <h2 className="text-[19px] font-black leading-[1.2] text-brand-navy">
-                  Be the help
-                  <br />
-                  someone needs
-                </h2>
-                <p className="mt-2 text-xs font-medium leading-relaxed text-brand-text-secondary">
-                  Sign up today and help us
-                  <br />
-                  respond faster, together.
-                </p>
-              </div>
+          {/* Floating UI Badge 1: 24/7 Fast Response */}
+          <div className="absolute right-8 top-12 flex items-center gap-3 rounded-2xl border border-white/20 bg-white/90 p-3.5 shadow-xl backdrop-blur-md">
+            <div className="grid size-10 place-items-center rounded-xl bg-brand-red-soft text-brand-red shadow-xs">
+              <Zap className="size-5" />
+            </div>
+            <div>
+              <p className="text-xs font-black text-brand-navy">Fast Response</p>
+              <p className="text-[11px] font-bold text-slate-500">
+                Average &lt; 3 mins dispatch
+              </p>
             </div>
           </div>
 
-          {/* ------------------------------------------------------------------
-              Bottom Floating 4-Feature Pillars Card (Eye-Catching Glass Card)
-              ------------------------------------------------------------------ */}
-          <div className="absolute bottom-6 left-6 right-6 z-10 rounded-3xl border border-white/90 bg-white/95 p-5 shadow-[0_20px_50px_rgba(15,23,42,0.18)] backdrop-blur-xl">
-            <div className="grid grid-cols-4 divide-x divide-slate-300">
-              {/* Pillar 1: Quick Response */}
-              <div className="flex flex-col items-center px-3 text-center">
-                <div className="grid size-12 place-items-center rounded-full border border-rose-100 bg-brand-red-soft text-brand-red shadow-sm transition-transform hover:scale-105">
-                  <Zap className="size-5.5 fill-brand-red text-brand-red" />
-                </div>
-                <h3 className="mt-2.5 text-[13px] font-black tracking-tight text-brand-navy">
-                  Quick Response
-                </h3>
-                <p className="mt-1 text-[11px] font-semibold leading-tight text-brand-text-secondary">
-                  Get help when every
-                  <br />
-                  second counts.
-                </p>
-              </div>
-
-              {/* Pillar 2: Trusted Community */}
-              <div className="flex flex-col items-center px-3 text-center">
-                <div className="grid size-12 place-items-center rounded-full border border-blue-100 bg-blue-50 text-blue-600 shadow-sm transition-transform hover:scale-105">
-                  <ShieldCheck className="size-5.5 fill-blue-500/20 text-blue-600" />
-                </div>
-                <h3 className="mt-2.5 text-[13px] font-black tracking-tight text-[#10233f]">
-                  Trusted Community
-                </h3>
-                <p className="mt-1 text-[11px] font-semibold leading-tight text-slate-500">
-                  Connect with verified
-                  <br />
-                  volunteers and services.
-                </p>
-              </div>
-
-              {/* Pillar 3: Save Lives */}
-              <div className="flex flex-col items-center px-3 text-center">
-                <div className="grid size-12 place-items-center rounded-full border border-emerald-100 bg-emerald-50 text-emerald-600 shadow-sm transition-transform hover:scale-105">
-                  <HandHeart className="size-5.5 fill-emerald-500/20 text-emerald-600" />
-                </div>
-                <h3 className="mt-2.5 text-[13px] font-black tracking-tight text-[#10233f]">
-                  Save Lives
-                </h3>
-                <p className="mt-1 text-[11px] font-semibold leading-tight text-slate-500">
-                  Your action today can
-                  <br />
-                  save lives tomorrow.
-                </p>
-              </div>
-
-              {/* Pillar 4: Secure & Private */}
-              <div className="flex flex-col items-center px-3 text-center">
-                <div className="grid size-12 place-items-center rounded-full border border-amber-100 bg-amber-50 text-amber-600 shadow-sm transition-transform hover:scale-105">
-                  <Lock className="size-5.5 text-amber-600" />
-                </div>
-                <h3 className="mt-2.5 text-[13px] font-black tracking-tight text-[#10233f]">
-                  Secure & Private
-                </h3>
-                <p className="mt-1 text-[11px] font-semibold leading-tight text-slate-500">
-                  Your data is protected
-                  <br />
-                  and never shared.
-                </p>
-              </div>
+          {/* Floating UI Badge 2: Verified Volunteer Network */}
+          <div className="absolute left-8 top-1/2 -translate-y-1/2 flex items-center gap-3 rounded-2xl border border-white/20 bg-white/90 p-3.5 shadow-xl backdrop-blur-md">
+            <div className="grid size-10 place-items-center rounded-xl bg-emerald-50 text-emerald-600 shadow-xs">
+              <ShieldCheck className="size-5" />
             </div>
+            <div>
+              <p className="text-xs font-black text-brand-navy">
+                Verified Responders
+              </p>
+              <p className="text-[11px] font-bold text-slate-500">
+                100% Background Verified
+              </p>
+            </div>
+          </div>
+
+          {/* Floating UI Badge 3: Blood Donor Network */}
+          <div className="absolute right-8 bottom-32 flex items-center gap-3 rounded-2xl border border-white/20 bg-white/90 p-3.5 shadow-xl backdrop-blur-md">
+            <div className="grid size-10 place-items-center rounded-xl bg-rose-50 text-rose-600 shadow-xs">
+              <HandHeart className="size-5" />
+            </div>
+            <div>
+              <p className="text-xs font-black text-brand-navy">Blood Donors</p>
+              <p className="text-[11px] font-bold text-slate-500">
+                12,000+ Ready to Donate
+              </p>
+            </div>
+          </div>
+
+          {/* Bottom Hero Text Banner */}
+          <div className="absolute inset-x-0 bottom-0 p-8 text-white">
+            <h2 className="text-2xl font-black leading-tight tracking-tight">
+              Stand with your community.
+              <br />
+              Save lives together.
+            </h2>
+            <p className="mt-2 text-xs font-medium text-white/80">
+              Join thousands of citizens, certified volunteers, and blood donors
+              nationwide.
+            </p>
           </div>
         </div>
       </div>

@@ -27,6 +27,8 @@ export interface RegisterRequest {
   phone: string;
   email?: string;
   password: string;
+  accountType?: "USER" | "VOLUNTEER" | "BLOOD_DONOR";
+  bloodGroup?: string;
   dateOfBirth?: string;
   gender?: "MALE" | "FEMALE" | "OTHER" | "PREFER_NOT_TO_SAY";
   bloodGroupId?: number;
