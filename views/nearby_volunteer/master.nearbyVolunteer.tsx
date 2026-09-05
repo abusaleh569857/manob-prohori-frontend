@@ -1,5 +1,5 @@
-import UserSidebar from "@/components/layout/userSidebar";
-import UserHeader from "@/components/layout/userHeader";
+import UserSidebar from "@/components/layout/user-sidebar";
+import UserHeader from "@/components/layout/user-header";
 import VolunteerSearch from "./components/VolunteerSearch";
 import VolunteerCard from "./components/VolunteerCard";
 

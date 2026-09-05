@@ -10,6 +10,7 @@ import type {
   CreateIncidentRequest,
   CreateIncidentResponseData,
   IncidentStatus,
+  NationalCrisisTelemetry,
 } from "@/types/incident.types";
 
 export const incidentApi = baseApi.injectEndpoints({
@@ -28,6 +29,22 @@ export const incidentApi = baseApi.injectEndpoints({
         method: "GET",
       }),
       providesTags: ["Incident"],
+    }),
+
+    getNationalCrisisTelemetry: builder.query<ApiResponse<NationalCrisisTelemetry>, void>({
+      query: () => ({
+        url: "/incidents/admin/telemetry-map",
+        method: "GET",
+      }),
+      providesTags: ["Incident"],
+    }),
+
+    seedNationwideCrisisData: builder.mutation<ApiResponse<any>, void>({
+      query: () => ({
+        url: "/incidents/admin/seed-telemetry",
+        method: "POST",
+      }),
+      invalidatesTags: ["Incident", "Volunteer"],
     }),
 
     createIncidentCategory: builder.mutation<ApiResponse<AdminIncidentCategory>, CreateCategoryInput>({
@@ -265,6 +282,8 @@ export const incidentApi = baseApi.injectEndpoints({
 export const {
   useGetIncidentCategoriesQuery,
   useGetAdminIncidentCategoriesQuery,
+  useGetNationalCrisisTelemetryQuery,
+  useSeedNationwideCrisisDataMutation,
   useCreateIncidentCategoryMutation,
   useUpdateIncidentCategoryMutation,
   useToggleIncidentCategoryStatusMutation,

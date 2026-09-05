@@ -45,7 +45,6 @@ export function MasterAdminIncidentsComponent() {
     isFetching,
     refetch,
   } = useGetAllIncidentsQuery(undefined, {
-    pollingInterval: 5000,
     refetchOnMountOrArgChange: true,
   });
 

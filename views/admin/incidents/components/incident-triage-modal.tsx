@@ -84,7 +84,7 @@ export function IncidentTriageModal({
     refetch: refetchResponders,
   } = useGetIncidentDispatchedRespondersQuery(incident?.id, {
     skip: !incident?.id || !isOpen,
-    pollingInterval: 5000,
+    pollingInterval: 20000,
   });
 
   const [dispatchMutation, { isLoading: isDispatching }] = useDispatchIncidentToVolunteersMutation();

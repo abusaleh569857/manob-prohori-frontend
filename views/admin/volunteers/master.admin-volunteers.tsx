@@ -48,7 +48,7 @@ export function MasterAdminVolunteersComponent() {
       status: statusFilter,
       search: search.trim() || undefined,
     },
-    { pollingInterval: 5000 }
+    { refetchOnMountOrArgChange: true }
   );
 
   const [verifyVolunteerMutation, { isLoading: isVerifying }] = useVerifyVolunteerMutation();

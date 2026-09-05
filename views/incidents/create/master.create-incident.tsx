@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Siren, ArrowLeft, ShieldAlert, Clock, PhoneCall } from "lucide-react";
+import { Siren, ArrowLeft, ShieldAlert, Clock, PhoneCall, Radio, HeartPulse, Sparkles } from "lucide-react";
 import { IncidentForm } from "./components/incident-form";
 import { useCreateIncident } from "./hooks/use-create-incident";
 
@@ -11,98 +11,73 @@ export function MasterCreateIncidentComponent() {
   const hook = useCreateIncident();
 
   return (
-    <div className="min-h-screen bg-brand-canvas py-8 px-4 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-4xl">
-        {/* Navigation Breadcrumb */}
+    <div className="min-h-screen bg-linear-to-b from-slate-100/90 via-slate-50 to-slate-100/70 py-8 px-4 sm:px-6 lg:px-8">
+      {/* Background Glow Accents */}
+      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+        <div className="absolute -top-32 left-1/4 size-96 rounded-full bg-red-400/10 blur-3xl" />
+        <div className="absolute top-1/3 -right-32 size-96 rounded-full bg-blue-400/10 blur-3xl" />
+      </div>
+
+      <div className="relative z-10 mx-auto max-w-6xl">
+        {/* Navigation Top Bar */}
         <div className="mb-6 flex items-center justify-between">
           <button
             type="button"
             onClick={() => router.back()}
-            className="flex items-center gap-1.5 text-xs font-bold text-brand-text-secondary transition hover:text-brand-red cursor-pointer"
+            className="flex items-center gap-2 rounded-xl border border-slate-200/90 bg-white/90 px-3.5 py-2 text-xs font-bold text-slate-700 backdrop-blur-md transition hover:border-slate-300 hover:bg-white hover:text-brand-navy shadow-2xs cursor-pointer"
           >
-            <ArrowLeft className="size-4" />
-            Back
+            <ArrowLeft className="size-3.5" />
+            <span>Back</span>
           </button>
+
           <Link
             href="/incidents/my"
-            className="text-xs font-bold text-brand-red hover:underline"
+            className="flex items-center gap-1.5 rounded-xl border border-red-200/80 bg-red-50/80 px-3.5 py-2 text-xs font-extrabold text-brand-red backdrop-blur-md hover:bg-red-100 transition shadow-2xs"
           >
-            View My Reports →
+            <span>View My Reported Incidents</span>
+            <span className="text-sm">→</span>
           </Link>
         </div>
 
-        {/* Emergency Alert Header Banner */}
-        <div className="mb-6 rounded-3xl border border-brand-red/25 bg-brand-red-soft p-5 backdrop-blur-sm sm:p-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3.5">
-              <div className="grid size-12 place-items-center rounded-2xl bg-brand-red text-white shadow-md shadow-brand-red/30">
-                <Siren className="size-6 animate-pulse" />
+        {/* Hero Emergency Alert Header Banner (Glassmorphic) */}
+        <div className="relative mb-6 overflow-hidden rounded-3xl border border-red-500/30 bg-linear-to-r from-red-600 via-brand-red to-red-700 p-6 sm:p-7 text-white shadow-[0_20px_50px_rgba(220,38,38,0.22)] backdrop-blur-xl">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 relative z-10">
+            <div className="flex items-center gap-4">
+              <div className="grid size-14 place-items-center rounded-2xl bg-white/20 text-white backdrop-blur-md shadow-inner ring-1 ring-white/30">
+                <Siren className="size-7 animate-pulse" />
               </div>
               <div>
-                <h1 className="text-xl sm:text-2xl font-black tracking-tight text-brand-navy">
-                  Report an Emergency
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-0.5 text-[10px] font-black uppercase text-brand-red">
+                    <Radio className="size-2.5 animate-pulse" /> Live Dispatch Network
+                  </span>
+                  <span className="text-xs font-mono font-bold text-red-100">
+                    National Response
+                  </span>
+                </div>
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight text-white mt-1">
+                  Report an Emergency Incident
                 </h1>
-                <p className="mt-0.5 text-xs font-medium text-brand-text-secondary">
-                  Instant alert to nearby verified volunteers, hospitals, and emergency services.
+                <p className="mt-0.5 text-xs sm:text-sm text-red-100 font-medium">
+                  Instant geo-targeted alert broadcast to nearby verified volunteers, hospitals, and disaster response teams.
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 rounded-2xl bg-brand-surface px-3.5 py-2 text-xs font-bold text-brand-red shadow-xs border border-brand-red/20">
-              <PhoneCall className="size-3.5" />
-              <span>Immediate Life Threat? Call 999</span>
-            </div>
+            <a
+              href="tel:999"
+              className="flex items-center gap-2 rounded-2xl bg-white px-5 py-3 text-xs sm:text-sm font-black text-brand-red shadow-lg shadow-black/10 hover:bg-red-50 transition cursor-pointer shrink-0"
+            >
+              <PhoneCall className="size-4 animate-bounce" />
+              <span>Life Threat? Call 999</span>
+            </a>
           </div>
         </div>
 
-        {/* Main Grid: Form Container & Right Emergency Guide Card */}
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
-          {/* Left: Incident Form Box */}
-          <div className="rounded-3xl border border-brand-border bg-brand-surface p-6 sm:p-8 shadow-sm">
-            <IncidentForm hook={hook} />
-          </div>
-
-          {/* Right: Emergency Instructions & Tips */}
-          <div className="space-y-4">
-            <div className="rounded-3xl border border-brand-border bg-brand-surface p-5 shadow-xs">
-              <h3 className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-brand-navy">
-                <ShieldAlert className="size-4 text-brand-red" />
-                Emergency Guidelines
-              </h3>
-              <ul className="mt-3 space-y-2.5 text-xs text-brand-text-secondary font-medium">
-                <li className="flex items-start gap-2">
-                  <span className="grid size-4.5 shrink-0 place-items-center rounded-full bg-brand-red-soft text-[10px] font-bold text-brand-red">
-                    1
-                  </span>
-                  <span>Ensure your personal safety first before reporting.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="grid size-4.5 shrink-0 place-items-center rounded-full bg-brand-red-soft text-[10px] font-bold text-brand-red">
-                    2
-                  </span>
-                  <span>Keep GPS enabled for 5 km precision responder matching.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="grid size-4.5 shrink-0 place-items-center rounded-full bg-brand-red-soft text-[10px] font-bold text-brand-red">
-                    3
-                  </span>
-                  <span>Verified responders will coordinate via the incident chat.</span>
-                </li>
-              </ul>
-            </div>
-
-            <div className="rounded-3xl border border-brand-border bg-brand-surface p-5 shadow-xs">
-              <h3 className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-brand-navy">
-                <Clock className="size-4 text-brand-emerald" />
-                Response Timeline
-              </h3>
-              <p className="mt-2 text-xs text-brand-text-secondary leading-relaxed font-medium">
-                Once submitted, your incident starts in <strong>REPORTED</strong> status and alerts nearby verified teams immediately.
-              </p>
-            </div>
-          </div>
-        </div>
+        {/* Unified Glassmorphic Incident Form */}
+        <IncidentForm hook={hook} />
       </div>
     </div>
   );
 }
+

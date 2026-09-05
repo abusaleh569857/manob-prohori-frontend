@@ -11,8 +11,7 @@ import {
 
 export function AdminRecentIncidents() {
   const { data: apiResponse, isLoading, refetch } = useGetAllIncidentsQuery(
-    { limit: 5 },
-    { pollingInterval: 5000 }
+    { limit: 5 }
   );
   const [updateStatusMutation] = useUpdateIncidentStatusMutation();
 

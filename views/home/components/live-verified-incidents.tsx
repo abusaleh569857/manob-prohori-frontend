@@ -18,7 +18,7 @@ import { useGetPublicVerifiedIncidentsQuery } from "@/redux/api/incidentApi";
 export function LiveVerifiedIncidents() {
   const { data: apiResponse, isLoading } = useGetPublicVerifiedIncidentsQuery(
     { limit: 4 },
-    { pollingInterval: 5000 }
+    { refetchOnMountOrArgChange: true }
   );
 
   const incidents = (apiResponse?.data || []).filter(
@@ -60,10 +60,10 @@ export function LiveVerifiedIncidents() {
         </div>
 
         <Link
-          href="/dashboard"
-          className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-brand-navy transition shadow-2xs self-start sm:self-center"
+          href="/crisis-map"
+          className="flex items-center gap-1.5 rounded-xl border border-red-200/80 bg-red-50/80 px-4 py-2 text-xs font-bold text-brand-red hover:bg-red-100 transition shadow-2xs self-start sm:self-center"
         >
-          <span>Open Emergency Radar</span>
+          <span>Open Live Crisis Map</span>
           <ArrowRight className="size-3.5" />
         </Link>
       </div>

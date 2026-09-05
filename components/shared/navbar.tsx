@@ -48,21 +48,31 @@ export function Navbar() {
 
       {/* Desktop Navigation Links */}
       <nav className="hidden items-center gap-7 text-[13.5px] font-semibold text-brand-text-secondary lg:flex">
-        {["Home", "How It Works", "Features", "Find Help", "About Us", "Contact"].map(
-          (item, i) => (
-            <a
-              key={item}
-              href={`#${item.toLowerCase().replaceAll(" ", "-")}`}
-              className={
-                i === 0
-                  ? "font-bold text-brand-red"
-                  : "transition hover:text-brand-red"
-              }
-            >
-              {item}
-            </a>
-          )
-        )}
+        <Link href="/" className="font-bold text-brand-navy hover:text-brand-red transition">
+          Home
+        </Link>
+        <Link
+          href="/crisis-map"
+          className="group relative flex items-center gap-1.5 rounded-full bg-red-50/80 px-3 py-1 font-bold text-brand-red border border-red-200/80 shadow-2xs hover:bg-red-100/80 transition"
+        >
+          <span className="relative flex size-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-red opacity-75"></span>
+            <span className="relative inline-flex size-2 rounded-full bg-brand-red"></span>
+          </span>
+          <span>Live Crisis Map</span>
+        </Link>
+        <Link href="/how-it-works" className="transition hover:text-brand-red">
+          How It Works
+        </Link>
+        <Link href="/find-help" className="transition hover:text-brand-red">
+          Find Help
+        </Link>
+        <Link href="/about-us" className="transition hover:text-brand-red">
+          About Us
+        </Link>
+        <Link href="/contact" className="transition hover:text-brand-red">
+          Contact
+        </Link>
       </nav>
 
       {/* Authentication Action Buttons */}

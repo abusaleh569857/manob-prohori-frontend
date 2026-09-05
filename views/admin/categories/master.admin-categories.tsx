@@ -109,7 +109,6 @@ export function MasterAdminCategoriesComponent() {
     isLoading,
     refetch,
   } = useGetAdminIncidentCategoriesQuery(undefined, {
-    pollingInterval: 5000,
     refetchOnMountOrArgChange: true,
   });
 

@@ -107,3 +107,38 @@ export interface CreateIncidentResponseData {
   id: number;
   status: IncidentStatus;
 }
+
+export interface DivisionCrisisStat {
+  division: string;
+  totalIncidents: number;
+  criticalCount: number;
+  activeDispatches: number;
+  volunteerCount: number;
+  crisisIndex: number;
+  alertLevel: "HIGH_ALERT" | "MODERATE" | "NORMAL";
+}
+
+export interface NationalCrisisVolunteer {
+  userId: number;
+  name: string;
+  phone: string;
+  district: string | null;
+  upazila: string | null;
+  latitude: number;
+  longitude: number;
+  volunteerStatus: "AVAILABLE" | "UNAVAILABLE" | "ON_MISSION";
+  serviceRadiusKm: number;
+}
+
+export interface NationalCrisisTelemetry {
+  incidents: (Incident & {
+    respondersCount?: number;
+    imageUrls?: string[];
+  })[];
+  volunteers: NationalCrisisVolunteer[];
+  divisionStats: DivisionCrisisStat[];
+  totalIncidents: number;
+  totalVolunteers: number;
+  criticalIncidentsCount: number;
+  activeDispatchesCount: number;
+}

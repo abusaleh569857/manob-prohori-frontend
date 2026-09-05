@@ -58,7 +58,6 @@ export function MasterVolunteerVerificationComponent() {
     isLoading: isAppLoading,
     refetch,
   } = volunteerApi.useGetVolunteerApplicationQuery(undefined, {
-    pollingInterval: 5000,
     refetchOnMountOrArgChange: true,
   });
   const [submitApp, { isLoading: isSubmitting }] = volunteerApi.useSubmitVolunteerApplicationMutation();

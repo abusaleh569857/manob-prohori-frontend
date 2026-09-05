@@ -1,50 +1,73 @@
 "use client";
 
-import dynamic from "next/dynamic";
+import Link from "next/link";
+import {
+  Map as MapIcon,
+  Radio,
+  ArrowRight,
+  Flame,
+  ShieldCheck,
+  AlertTriangle,
+} from "lucide-react";
 import { AdminStatCards } from "./components/AdminStatCards";
 import { AdminIncidentCharts } from "./components/AdminIncidentCharts";
 import { AdminPendingVerifications } from "./components/AdminPendingVerifications";
 import { AdminRecentIncidents } from "./components/AdminRecentIncidents";
 import { useGetAdminOverviewStatsQuery } from "@/redux/api/incidentApi";
 
-const AdminLiveIncidentMap = dynamic(
-  () =>
-    import("./components/AdminLiveIncidentMap").then(
-      (mod) => mod.AdminLiveIncidentMap
-    ),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="flex h-96 w-full flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
-        <div className="size-6 animate-spin rounded-full border-2 border-brand-red border-t-transparent" />
-        <span className="mt-3 text-xs font-bold text-slate-400">
-          Loading National Dispatch Map...
-        </span>
-      </div>
-    ),
-  }
-);
-
 export function MasterAdminOverviewComponent() {
   const { data: statsResponse, isLoading } = useGetAdminOverviewStatsQuery(undefined, {
-    pollingInterval: 10000,
+    refetchOnMountOrArgChange: true,
   });
 
   const stats = statsResponse?.data;
+  const metrics = stats?.metrics;
 
   return (
     <div className="space-y-6">
       {/* 1. Key Performance & Status Metric Cards (Live Backend Counts) */}
-      <AdminStatCards metrics={stats?.metrics} />
+      <AdminStatCards metrics={metrics} />
 
-      {/* 2. Interactive Charts Section (Live Categories & Severities) */}
+      {/* 2. Tactical GIS Crisis Radar Launch Banner (Quick Link) */}
+      <div className="relative overflow-hidden rounded-3xl border-2 border-red-500/80 bg-linear-to-r from-red-600 via-brand-red to-red-700 p-6 text-white shadow-xl">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between relative z-10">
+          <div className="flex items-center gap-4">
+            <div className="grid size-14 place-items-center rounded-2xl bg-white/20 text-white backdrop-blur-xs shadow-inner">
+              <MapIcon className="size-7" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="rounded-full bg-white px-2.5 py-0.5 text-[10px] font-black uppercase text-brand-red">
+                  <Radio className="inline-block size-2.5 mr-1 animate-pulse" /> Live Telemetry
+                </span>
+                <span className="text-xs font-mono font-bold text-red-100">
+                  Command Center Radar
+                </span>
+              </div>
+              <h2 className="text-lg sm:text-xl font-black mt-1 text-white leading-tight">
+                National Emergency Crisis Heatmap &amp; Tactical GIS Radar
+              </h2>
+              <p className="text-xs sm:text-sm text-red-100 mt-0.5 max-w-xl font-medium">
+                Live nationwide emergency clusters, red-zone heatmaps, 8 division crisis rankings, and 1-click volunteer dispatching.
+              </p>
+            </div>
+          </div>
+
+          <Link
+            href="/admin/crisis-map"
+            className="flex items-center justify-center gap-2 rounded-2xl bg-white px-6 py-3.5 text-xs sm:text-sm font-black text-brand-red hover:bg-red-50 transition shadow-lg shadow-black/10 cursor-pointer shrink-0"
+          >
+            <span>Open Full GIS Radar</span>
+            <ArrowRight className="size-4" />
+          </Link>
+        </div>
+      </div>
+
+      {/* 3. Interactive Charts Section (Live Categories & Severities) */}
       <AdminIncidentCharts
         categoryBreakdown={stats?.categoryBreakdown}
         severityDistribution={stats?.severityDistribution}
       />
-
-      {/* 3. National Geospatial Dispatch Map */}
-      <AdminLiveIncidentMap />
 
       {/* 4. Active Incident Triage & Pending Verifications Stream */}
       <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">

@@ -103,22 +103,21 @@ export function MasterVolunteerDashboardComponent() {
   const prevDispatchIdsRef = useRef<number[]>([]);
   const hasInitializedRef = useRef<boolean>(false);
 
-  // RTK Query with fast real-time polling (3s) for profile, verification & emergency dispatches
+  // RTK Query with balanced real-time polling (25s) for emergency dispatches & active mission
   const { data: profileRes, refetch: refetchProfile } = useGetVolunteerProfileQuery(undefined, {
-    pollingInterval: 3000,
     refetchOnMountOrArgChange: true,
   });
   const {
     data: dispatchesRes,
     isLoading: isLoadingDispatches,
     refetch: refetchDispatches,
-  } = useGetNearbyDispatchesQuery(undefined, { pollingInterval: 3000, refetchOnMountOrArgChange: true });
+  } = useGetNearbyDispatchesQuery(undefined, { pollingInterval: 25000, refetchOnMountOrArgChange: true });
 
   const {
     data: activeMissionRes,
     isLoading: isLoadingMission,
     refetch: refetchActiveMission,
-  } = useGetActiveMissionQuery(undefined, { pollingInterval: 3000, refetchOnMountOrArgChange: true });
+  } = useGetActiveMissionQuery(undefined, { pollingInterval: 25000, refetchOnMountOrArgChange: true });
 
   const { data: historyRes } = useGetMissionHistoryQuery();
 

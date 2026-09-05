@@ -17,6 +17,7 @@ import {
   Shield,
   Radio,
   Layers,
+  Map,
 } from "lucide-react";
 import { RoleSwitcher } from "./role-switcher";
 import { cn } from "@/lib/utils";
@@ -26,9 +27,9 @@ export function AdminSidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
 
-  // Dynamic real-time backend stats with 5s polling
+  // Dynamic real-time backend stats
   const { data: statsData } = useGetAdminOverviewStatsQuery(undefined, {
-    pollingInterval: 5000,
+    refetchOnMountOrArgChange: true,
   });
 
   const metrics = statsData?.data?.metrics;
@@ -43,6 +44,14 @@ export function AdminSidebar() {
       href: "/admin/dashboard",
       icon: LayoutDashboard,
       tooltip: "Platform telemetry and national dispatch metrics",
+      badgeCount: null,
+      badgeType: null,
+    },
+    {
+      label: "National Crisis Map",
+      href: "/admin/crisis-map",
+      icon: Map,
+      tooltip: "National GIS crisis heatmap & live telemetry radar",
       badgeCount: null,
       badgeType: null,
     },
