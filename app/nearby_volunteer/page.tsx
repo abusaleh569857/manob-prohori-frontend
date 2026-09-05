@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import NearbyVolunteer from "@/views/nearby_volunteer/master.nearbyVolunteer";
 
 export default function NearbyVolunteerPage() {
@@ -65,6 +66,8 @@ export default function NearbyVolunteerPage() {
   ];
 
   return (
-    <NearbyVolunteer volunteers={volunteers} />
+    <Suspense fallback={<div className="min-h-screen bg-brand-canvas" />}>
+      <NearbyVolunteer volunteers={volunteers} />
+    </Suspense>
   );
 }
