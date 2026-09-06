@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
+  Home,
   Siren,
   MapPin,
   Calendar,
@@ -43,15 +44,25 @@ export function MasterMyIncidentsComponent() {
     <div className="min-h-screen bg-brand-canvas py-8 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-4xl space-y-6">
         {/* Navigation Breadcrumb */}
-        <div className="flex items-center justify-between">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="flex items-center gap-1.5 text-xs font-bold text-brand-text-secondary transition hover:text-brand-red cursor-pointer"
-          >
-            <ArrowLeft className="size-4" />
-            Back
-          </button>
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="flex items-center gap-1.5 rounded-xl border border-slate-200/90 bg-white/90 px-3.5 py-2 text-xs font-bold text-slate-700 backdrop-blur-md transition hover:border-slate-300 hover:bg-white hover:text-brand-navy shadow-2xs cursor-pointer"
+            >
+              <ArrowLeft className="size-3.5" />
+              <span>Back</span>
+            </button>
+
+            <Link
+              href="/"
+              className="flex items-center gap-1.5 rounded-xl border border-slate-200/90 bg-white/90 px-3.5 py-2 text-xs font-bold text-slate-700 backdrop-blur-md transition hover:border-slate-300 hover:bg-white hover:text-brand-navy shadow-2xs"
+            >
+              <Home className="size-3.5" />
+              <span>Home</span>
+            </Link>
+          </div>
 
           <Link href="/incidents/create">
             <Button

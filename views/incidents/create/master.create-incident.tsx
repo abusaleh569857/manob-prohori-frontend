@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Siren, ArrowLeft, ShieldAlert, Clock, PhoneCall, Radio, HeartPulse, Sparkles } from "lucide-react";
+import { Siren, ArrowLeft, Home, ShieldAlert, Clock, PhoneCall, Radio, HeartPulse, Sparkles } from "lucide-react";
 import { IncidentForm } from "./components/incident-form";
 import { useCreateIncident } from "./hooks/use-create-incident";
 
@@ -20,21 +20,31 @@ export function MasterCreateIncidentComponent() {
 
       <div className="relative z-10 mx-auto max-w-6xl">
         {/* Navigation Top Bar */}
-        <div className="mb-6 flex items-center justify-between">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="flex items-center gap-2 rounded-xl border border-slate-200/90 bg-white/90 px-3.5 py-2 text-xs font-bold text-slate-700 backdrop-blur-md transition hover:border-slate-300 hover:bg-white hover:text-brand-navy shadow-2xs cursor-pointer"
-          >
-            <ArrowLeft className="size-3.5" />
-            <span>Back</span>
-          </button>
+        <div className="mb-6 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="flex items-center gap-1.5 rounded-xl border border-slate-200/90 bg-white/90 px-3.5 py-2 text-xs font-bold text-slate-700 backdrop-blur-md transition hover:border-slate-300 hover:bg-white hover:text-brand-navy shadow-2xs cursor-pointer"
+            >
+              <ArrowLeft className="size-3.5" />
+              <span>Back</span>
+            </button>
+
+            <Link
+              href="/"
+              className="flex items-center gap-1.5 rounded-xl border border-slate-200/90 bg-white/90 px-3.5 py-2 text-xs font-bold text-slate-700 backdrop-blur-md transition hover:border-slate-300 hover:bg-white hover:text-brand-navy shadow-2xs"
+            >
+              <Home className="size-3.5" />
+              <span>Home</span>
+            </Link>
+          </div>
 
           <Link
             href="/incidents/my"
             className="flex items-center gap-1.5 rounded-xl border border-red-200/80 bg-red-50/80 px-3.5 py-2 text-xs font-extrabold text-brand-red backdrop-blur-md hover:bg-red-100 transition shadow-2xs"
           >
-            <span>View My Reported Incidents</span>
+            <span>My Reported Incidents</span>
             <span className="text-sm">→</span>
           </Link>
         </div>
