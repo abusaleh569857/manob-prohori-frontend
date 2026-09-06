@@ -141,6 +141,7 @@ export const incidentApi = baseApi.injectEndpoints({
         };
         categoryBreakdown: Array<{ categoryName: string; count: number }>;
         severityDistribution: Array<{ severity: string; count: number }>;
+        velocityData?: Array<{ time: string; reported: number; resolved: number }>;
       }>,
       void
     >({

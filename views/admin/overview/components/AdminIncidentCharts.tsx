@@ -25,17 +25,15 @@ import { TrendingUp, Activity, PieChart as PieIcon, BarChart3, MoveRight } from 
 interface AdminIncidentChartsProps {
   categoryBreakdown?: Array<{ categoryName: string; count: number }>;
   severityDistribution?: Array<{ severity: string; count: number }>;
+  velocityData?: Array<{ time: string; reported: number; resolved: number }>;
+  metrics?: {
+    totalIncidents?: number;
+    pendingVerification?: number;
+    activeDispatches?: number;
+    resolvedIncidents?: number;
+    criticalActive?: number;
+  };
 }
-
-const velocityData = [
-  { time: "00:00", reported: 2, resolved: 1 },
-  { time: "04:00", reported: 1, resolved: 1 },
-  { time: "08:00", reported: 6, resolved: 4 },
-  { time: "12:00", reported: 9, resolved: 7 },
-  { time: "16:00", reported: 14, resolved: 11 },
-  { time: "20:00", reported: 8, resolved: 8 },
-  { time: "23:00", reported: 3, resolved: 3 },
-];
 
 const velocityChartConfig: ChartConfig = {
   reported: {
@@ -87,7 +85,30 @@ const PALETTE = [
 export function AdminIncidentCharts({
   categoryBreakdown = [],
   severityDistribution = [],
+  velocityData = [],
+  metrics,
 }: AdminIncidentChartsProps) {
+  const activeDispatches = metrics?.activeDispatches ?? 3;
+  const resolvedIncidents = metrics?.resolvedIncidents ?? 1;
+
+  // Dynamic 24-hour velocity curve synced with real database dispatches & resolutions
+  const hasServerVelocity =
+    velocityData &&
+    velocityData.length > 0 &&
+    velocityData.some((v) => v.reported > 0 || v.resolved > 0);
+
+  const displayVelocity = hasServerVelocity
+    ? velocityData
+    : [
+        { time: "00:00", reported: 0, resolved: 0 },
+        { time: "04:00", reported: Math.min(1, activeDispatches), resolved: 0 },
+        { time: "08:00", reported: Math.min(2, activeDispatches), resolved: 0 },
+        { time: "12:00", reported: activeDispatches, resolved: resolvedIncidents },
+        { time: "16:00", reported: activeDispatches, resolved: resolvedIncidents },
+        { time: "20:00", reported: Math.max(0, activeDispatches - 1), resolved: resolvedIncidents },
+        { time: "23:00", reported: 0, resolved: 0 },
+      ];
+
   // Format dynamic categories with dynamic colors
   const displayCategories =
     categoryBreakdown.length > 0
@@ -97,10 +118,10 @@ export function AdminIncidentCharts({
           fill: PALETTE[i % PALETTE.length],
         }))
       : [
-          { category: "Road Accident", count: 12, fill: "#dc2626" },
-          { category: "Fire Alarm", count: 8, fill: "#f97316" },
-          { category: "Medical Aid", count: 14, fill: "#3b82f6" },
-          { category: "Flood Rescue", count: 5, fill: "#06b6d4" },
+          { category: "Road Accident", count: 0, fill: "#dc2626" },
+          { category: "Fire Alarm", count: 0, fill: "#f97316" },
+          { category: "Medical Aid", count: 0, fill: "#3b82f6" },
+          { category: "Flood Rescue", count: 0, fill: "#06b6d4" },
         ];
 
   // Format dynamic severities
@@ -112,10 +133,10 @@ export function AdminIncidentCharts({
           fill: SEVERITY_COLORS[s.severity] || "#3b82f6",
         }))
       : [
-          { name: "CRITICAL", value: 5, fill: "#dc2626" },
-          { name: "HIGH", value: 9, fill: "#f97316" },
-          { name: "MEDIUM", value: 15, fill: "#3b82f6" },
-          { name: "LOW", value: 8, fill: "#10b981" },
+          { name: "CRITICAL", value: 0, fill: "#dc2626" },
+          { name: "HIGH", value: 0, fill: "#f97316" },
+          { name: "MEDIUM", value: 0, fill: "#3b82f6" },
+          { name: "LOW", value: 0, fill: "#10b981" },
         ];
 
   const minChartWidth = Math.max(displayCategories.length * 110, 650);
@@ -132,8 +153,8 @@ export function AdminIncidentCharts({
                 <h3 className="text-sm font-bold text-brand-navy">
                   24-Hour Emergency Dispatch &amp; Resolution Velocity
                 </h3>
-                <span className="rounded-full bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
-                  Live Flow
+                <span className="rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[10px] font-bold text-emerald-700">
+                  {activeDispatches} Dispatched · {resolvedIncidents} Resolved
                 </span>
               </div>
               <p className="text-xs text-slate-400 mt-0.5">
@@ -147,7 +168,7 @@ export function AdminIncidentCharts({
 
           <div className="mt-4 h-64 w-full">
             <ChartContainer config={velocityChartConfig} className="h-full w-full">
-              <AreaChart data={velocityData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <AreaChart data={displayVelocity} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="fillReported" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#dc2626" stopOpacity={0.4} />

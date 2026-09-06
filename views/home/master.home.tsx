@@ -256,61 +256,58 @@ export function MasterHomeComponent() {
       <LiveVerifiedIncidents />
 
       {/* ----------------------------------------------------------------------
-          SECTION 3: REAL-WORLD IMPACT & APP STORE DOWNLOADS
+          SECTION 3: HUMANITARIAN ACTION & COMMUNITY RESPONSE (Web Centered)
           Outer boundary: max-w-360 mx-auto (matches hero section image width)
           ---------------------------------------------------------------------- */}
-      <section className="mx-auto mt-6 max-w-360 overflow-hidden rounded-3xl bg-[#102a52] px-7 py-8 text-white sm:px-10">
-        <div className="grid items-center gap-8 lg:grid-cols-[1.1fr_1.8fr_1fr]">
-          {/* Contribution summary & Learn More */}
+      <section className="relative mx-auto mt-8 mb-4 max-w-360 overflow-hidden rounded-3xl border border-blue-900/40 bg-linear-to-r from-[#0c1f3c] via-[#102a52] to-[#0c1f3c] px-7 py-9 text-white shadow-xl sm:px-10">
+        <div className="pointer-events-none absolute -top-24 -right-24 size-80 rounded-full bg-red-600/10 blur-3xl" />
+
+        <div className="relative z-10 grid items-center gap-8 lg:grid-cols-[1.3fr_1.7fr]">
+          {/* Main Mission statement */}
           <div>
             <div className="flex items-center gap-3">
-              <div className="grid size-12 place-items-center rounded-2xl bg-red-500">
+              <div className="grid size-12 place-items-center rounded-2xl bg-linear-to-br from-red-500 to-brand-red text-white shadow-lg shadow-red-500/20">
                 <HeartHandshake className="size-6" />
               </div>
-              <h2 className="text-lg font-black">
-                Every contribution makes a real impact
-              </h2>
-            </div>
-            <p className="mt-3 max-w-65 text-xs leading-5 text-blue-100/70">
-              Your help can bring hope when it&apos;s needed the most.
-            </p>
-            <Button
-              variant="outline"
-              className="mt-5 rounded-lg border-white/30 bg-transparent text-white hover:bg-white/10"
-            >
-              Learn More <ArrowRight className="ml-2 size-4" />
-            </Button>
-          </div>
-
-          {/* Key Impact Statistics Grid */}
-          <div className="grid grid-cols-2 gap-6 border-y border-white/10 py-6 sm:grid-cols-4 lg:border-y-0 lg:border-x lg:px-8">
-            {[
-              ["25,000+", "Lives Impacted"],
-              ["3,200+", "Relief Requests Fulfilled"],
-              ["150+", "Partner Organizations"],
-              ["1.8M+", "BDT Funds Disbursed"],
-            ].map(([value, label]) => (
-              <div key={label} className="text-center">
-                <p className="text-2xl font-black">{value}</p>
-                <p className="mt-1 text-[10px] text-blue-100/70">{label}</p>
+              <div>
+                <span className="text-xs font-bold text-red-300 uppercase tracking-widest">
+                  Join the Humanitarian Effort
+                </span>
+                <h2 className="text-xl sm:text-2xl font-black text-white">
+                  Stand by People in Emergencies
+                </h2>
               </div>
-            ))}
+            </div>
+            <p className="mt-3 text-xs sm:text-sm leading-relaxed text-blue-100/80 max-w-md font-medium">
+              Your accurate report or volunteer assistance can save a precious life. Connect with our live emergency response network from anywhere in Bangladesh.
+            </p>
           </div>
 
-          {/* App download store badges */}
-          <div className="text-center lg:text-left">
-            <p className="text-lg font-black">Download Manob Prohori App</p>
-            <p className="mt-1 text-xs text-blue-100/70">
-              Stay prepared. Stay connected. Stay safe.
-            </p>
-            <div className="mt-4 flex justify-center gap-2 lg:justify-start">
-              <button className="rounded-lg border border-white/20 bg-black/50 px-3 py-2 text-[9px] font-bold">
-                ▶ Google Play
-              </button>
-              <button className="rounded-lg border border-white/20 bg-black/50 px-3 py-2 text-[9px] font-bold">
-                 App Store
-              </button>
-            </div>
+          {/* Direct Web Action Buttons */}
+          <div className="flex flex-wrap items-center justify-start lg:justify-end gap-3.5">
+            <Link
+              href="/incidents/create"
+              className="flex items-center gap-2 rounded-2xl bg-brand-red px-5 py-3 text-xs sm:text-sm font-bold text-white shadow-lg shadow-red-600/30 hover:bg-brand-red-dark transition"
+            >
+              <Siren className="size-4 animate-pulse" />
+              <span>Report Emergency</span>
+            </Link>
+
+            <Link
+              href="/crisis-map"
+              className="flex items-center gap-2 rounded-2xl border border-white/20 bg-white/10 px-5 py-3 text-xs sm:text-sm font-bold text-white backdrop-blur-md hover:bg-white/20 transition"
+            >
+              <MapPin className="size-4 text-blue-300" />
+              <span>Live Crisis Map</span>
+            </Link>
+
+            <Link
+              href="/signup"
+              className="flex items-center gap-2 rounded-2xl border border-white/20 bg-white/10 px-5 py-3 text-xs sm:text-sm font-bold text-white backdrop-blur-md hover:bg-white/20 transition"
+            >
+              <span>Volunteer Sign-Up</span>
+              <ArrowRight className="size-3.5" />
+            </Link>
           </div>
         </div>
       </section>

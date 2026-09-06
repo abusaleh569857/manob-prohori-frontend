@@ -357,6 +357,9 @@ export function IncidentTriageModal({
                           src={url}
                           alt={`Evidence ${idx + 1}`}
                           className="h-full w-full object-cover transition group-hover:scale-105"
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
+                          }}
                         />
                         <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
                           <ExternalLink className="size-4 text-white" />
@@ -738,8 +741,10 @@ export function IncidentTriageModal({
                             </div>
 
                             <p className="text-xs text-slate-500 mt-0.5">
-                              Phone: <strong className="text-brand-navy">{resp.volunteerPhone}</strong> · Dispatched{" "}
-                              {new Date(resp.respondedAt).toLocaleTimeString()}
+                              Phone: <strong className="text-brand-navy">{resp.volunteerPhone}</strong>
+                              {resp.respondedAt && (
+                                <> · {resp.missionStatus ? "Accepted" : "Dispatched"} {new Date(resp.respondedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</>
+                              )}
                             </p>
                           </div>
                         </div>

@@ -208,6 +208,42 @@ export function MasterIncidentDetailsComponent({
               )}
             </div>
           </div>
+
+          {/* Attached Photo Evidence Gallery */}
+          {incident.imageUrls && incident.imageUrls.length > 0 && (
+            <div className="mt-6 border-t border-slate-100 pt-5 space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                  Attached Photo Evidence ({incident.imageUrls.length})
+                </span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {incident.imageUrls.map((url: string, idx: number) => (
+                  <a
+                    key={idx}
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group relative aspect-video overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-2xs hover:border-brand-red transition"
+                  >
+                    <img
+                      src={url}
+                      alt={`Incident Evidence ${idx + 1}`}
+                      className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                      onError={(e) => {
+                        e.currentTarget.parentElement?.classList.add("hidden");
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                      <span className="rounded-lg bg-white/90 px-2.5 py-1 text-[10px] font-bold text-slate-800 shadow-xs">
+                        View Full Image ↗
+                      </span>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Status History Timeline Card */}

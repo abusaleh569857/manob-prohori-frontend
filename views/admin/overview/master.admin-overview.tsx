@@ -63,10 +63,12 @@ export function MasterAdminOverviewComponent() {
         </div>
       </div>
 
-      {/* 3. Interactive Charts Section (Live Categories & Severities) */}
+      {/* 3. Interactive Charts Section (Live Categories, Severities, and Velocity) */}
       <AdminIncidentCharts
         categoryBreakdown={stats?.categoryBreakdown}
         severityDistribution={stats?.severityDistribution}
+        velocityData={stats?.velocityData}
+        metrics={metrics}
       />
 
       {/* 4. Active Incident Triage & Pending Verifications Stream */}

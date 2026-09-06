@@ -1,17 +1,34 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Navigation, Radio } from "lucide-react";
+import { Navigation, Radio, Loader2 } from "lucide-react";
+import { useGetPublicVerifiedIncidentsQuery } from "@/redux/api/incidentApi";
 
 export default function DashboardMap() {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<any>(null);
+  const markersLayerRef = useRef<any>(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  useEffect(() => {
-    if (!mapContainerRef.current || mapRef.current) {
-      return;
+  const { data: verifiedRes, isLoading } = useGetPublicVerifiedIncidentsQuery(
+    { limit: 100 },
+    {
+      pollingInterval: 15000,
+      refetchOnMountOrArgChange: true,
     }
+  );
+
+  const incidents = (verifiedRes?.data || []).filter(
+    (item: any) =>
+      item.status === "VERIFIED" ||
+      item.status === "DISPATCHING" ||
+      item.status === "IN_PROGRESS" ||
+      item.status === "RESPONDER_ASSIGNED"
+  );
+
+  // Initialize Map
+  useEffect(() => {
+    if (!mapContainerRef.current || mapRef.current) return;
 
     let isMounted = true;
 
@@ -22,64 +39,24 @@ export default function DashboardMap() {
 
       if (!isMounted || !mapContainerRef.current || mapRef.current) return;
 
-      // Default to Dhaka coordinates
+      // Default center: Dhaka
       const centerLat = 23.8103;
       const centerLng = 90.4125;
 
       const map = L.map(mapContainerRef.current, {
         zoomControl: false,
-      }).setView([centerLat, centerLng], 13);
+      }).setView([centerLat, centerLng], 12);
 
-      // Add Zoom Control at bottom right
       L.control.zoom({ position: "bottomright" }).addTo(map);
 
-      // Add OpenStreetMap tiles
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution:
           '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         maxZoom: 19,
       }).addTo(map);
 
-      // Mock Sample Incident Markers
-      const sampleIncidents = [
-        {
-          lat: 23.8103,
-          lng: 90.4125,
-          title: "Road Traffic Accident",
-          severity: "CRITICAL",
-        },
-        {
-          lat: 23.8223,
-          lng: 90.4201,
-          title: "Medical Trauma Dispatch",
-          severity: "HIGH",
-        },
-        {
-          lat: 23.7925,
-          lng: 90.4078,
-          title: "Building Fire Alarm",
-          severity: "URGENT",
-        },
-      ];
-
-      sampleIncidents.forEach((inc) => {
-        const marker = L.circleMarker([inc.lat, inc.lng], {
-          radius: 10,
-          fillColor: "#dc2626",
-          color: "#ffffff",
-          weight: 2.5,
-          opacity: 1,
-          fillOpacity: 0.9,
-        }).addTo(map);
-
-        marker.bindPopup(`
-          <div style="font-family: inherit; padding: 4px;">
-            <strong style="color: #dc2626; font-size: 12px; text-transform: uppercase;">${inc.severity}</strong>
-            <p style="margin: 2px 0 0; font-weight: bold; font-size: 13px; color: #10233f;">${inc.title}</p>
-          </div>
-        `);
-      });
-
+      const markersLayer = L.layerGroup().addTo(map);
+      markersLayerRef.current = markersLayer;
       mapRef.current = map;
       setIsLoaded(true);
     }
@@ -95,9 +72,92 @@ export default function DashboardMap() {
     };
   }, []);
 
+  // Update Markers dynamically when incidents update
+  useEffect(() => {
+    if (!mapRef.current || !markersLayerRef.current) return;
+
+    async function updateMarkers() {
+      const L = (await import("leaflet")).default;
+      const markersLayer = markersLayerRef.current;
+      markersLayer.clearLayers();
+
+      const bounds: [number, number][] = [];
+
+      incidents.forEach((inc: any) => {
+        const lat = parseFloat(inc.latitude);
+        const lng = parseFloat(inc.longitude);
+
+        if (isNaN(lat) || isNaN(lng)) return;
+
+        bounds.push([lat, lng]);
+
+        const color =
+          inc.severity === "CRITICAL"
+            ? "#dc2626"
+            : inc.severity === "HIGH"
+            ? "#d97706"
+            : inc.severity === "MEDIUM"
+            ? "#2563eb"
+            : "#64748b";
+
+        const marker = L.circleMarker([lat, lng], {
+          radius: 9,
+          fillColor: color,
+          color: "#ffffff",
+          weight: 2.5,
+          opacity: 1,
+          fillOpacity: 0.9,
+        }).addTo(markersLayer);
+
+        const locationText = inc.addressText || inc.areaName || "Dhaka";
+
+        marker.bindPopup(`
+          <div style="font-family: system-ui, -apple-system, sans-serif; padding: 4px 2px; min-width: 170px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+              <span style="background: ${color}15; color: ${color}; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">
+                ${inc.severity}
+              </span>
+              <span style="font-size: 10px; font-weight: bold; color: #16a34a; background: #f0fdf4; padding: 2px 6px; border-radius: 4px;">
+                Verified
+              </span>
+            </div>
+            <p style="margin: 6px 0 2px; font-weight: 800; font-size: 13px; color: #0f172a; line-height: 1.3;">
+              ${inc.title}
+            </p>
+            <p style="margin: 0 0 8px; font-size: 11px; color: #64748b;">
+              📍 ${locationText}
+            </p>
+            <a href="/incidents/${inc.id}" style="display: block; text-align: center; background: #dc2626; color: #ffffff; font-size: 11px; font-weight: 700; padding: 5px 8px; border-radius: 6px; text-decoration: none;">
+              View Full Incident →
+            </a>
+          </div>
+        `);
+      });
+
+      if (bounds.length > 0) {
+        mapRef.current.fitBounds(bounds, {
+          padding: [40, 40],
+          maxZoom: 14,
+        });
+      }
+    }
+
+    updateMarkers();
+  }, [incidents]);
+
   const handleRecenter = () => {
-    if (mapRef.current) {
-      mapRef.current.setView([23.8103, 90.4125], 13);
+    if (!mapRef.current) return;
+    const validBounds = incidents
+      .map((inc: any) => [parseFloat(inc.latitude), parseFloat(inc.longitude)] as [number, number])
+      .filter(([lat, lng]) => !isNaN(lat) && !isNaN(lng));
+
+    if (validBounds.length > 0) {
+      mapRef.current.fitBounds(validBounds, {
+        padding: [40, 40],
+        maxZoom: 14,
+      });
+    } else {
+      mapRef.current.setView([23.8103, 90.4125], 12);
     }
   };
 
@@ -119,13 +179,16 @@ export default function DashboardMap() {
           </p>
         </div>
 
-        <button
-          onClick={handleRecenter}
-          className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-brand-navy transition cursor-pointer shadow-2xs"
-        >
-          <Navigation className="size-3.5 text-brand-red" />
-          Recenter
-        </button>
+        <div className="flex items-center gap-2">
+          {isLoading && <Loader2 className="size-4 animate-spin text-slate-400" />}
+          <button
+            onClick={handleRecenter}
+            className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-brand-navy transition cursor-pointer shadow-2xs"
+          >
+            <Navigation className="size-3.5 text-brand-red" />
+            Recenter
+          </button>
+        </div>
       </div>
 
       {/* Map Viewport Container */}

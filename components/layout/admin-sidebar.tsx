@@ -95,14 +95,14 @@ export function AdminSidebar() {
       badgeCount: null,
       badgeType: null,
     },
-    {
-      label: "Hospitals Directory",
-      href: "/admin/hospitals",
-      icon: Building2,
-      tooltip: "Hospital capacity & ICU bed directory",
-      badgeCount: null,
-      badgeType: null,
-    },
+    // {
+    //   label: "Hospitals Directory",
+    //   href: "/admin/hospitals",
+    //   icon: Building2,
+    //   tooltip: "Hospital capacity & ICU bed directory",
+    //   badgeCount: null,
+    //   badgeType: null,
+    // },
     {
       label: "Emergency Hotlines",
       href: "/admin/emergency-services",
@@ -111,14 +111,14 @@ export function AdminSidebar() {
       badgeCount: null,
       badgeType: null,
     },
-    {
-      label: "Audit Logs",
-      href: "/admin/audit-logs",
-      icon: History,
-      tooltip: "System activity logs and administrative audit trail",
-      badgeCount: null,
-      badgeType: null,
-    },
+    // {
+    //   label: "Audit Logs",
+    //   href: "/admin/audit-logs",
+    //   icon: History,
+    //   tooltip: "System activity logs and administrative audit trail",
+    //   badgeCount: null,
+    //   badgeType: null,
+    // },
   ];
 
   return (

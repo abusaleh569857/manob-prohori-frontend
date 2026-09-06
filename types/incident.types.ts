@@ -75,6 +75,7 @@ export interface Incident {
   categoryName: string;
   categorySlug?: string;
   categoryIcon?: string | null;
+  imageUrls?: string[];
 }
 
 export interface IncidentStatusHistoryItem {

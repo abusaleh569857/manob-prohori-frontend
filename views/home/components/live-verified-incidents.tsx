@@ -17,7 +17,7 @@ import { useGetPublicVerifiedIncidentsQuery } from "@/redux/api/incidentApi";
 
 export function LiveVerifiedIncidents() {
   const { data: apiResponse, isLoading } = useGetPublicVerifiedIncidentsQuery(
-    { limit: 4 },
+    { limit: 100 },
     { refetchOnMountOrArgChange: true }
   );
 
@@ -108,6 +108,9 @@ export function LiveVerifiedIncidents() {
                       src={incident.imageUrls[0]}
                       alt={incident.title}
                       className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                      onError={(e) => {
+                        e.currentTarget.parentElement?.classList.add("hidden");
+                      }}
                     />
                     <span className="absolute bottom-1 right-1.5 rounded-md bg-black/60 px-1.5 py-0.5 text-[9px] font-bold text-white flex items-center gap-1">
                       <ImageIcon className="size-2.5" />

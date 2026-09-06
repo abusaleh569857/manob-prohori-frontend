@@ -34,14 +34,14 @@ const citizenNavigation = [
     href: "/incidents/my",
     icon: FileText,
   },
-  {
-    label: "Nearby Responders",
-    href: "/dashboard#volunteers",
-    icon: Users,
-  },
+  // {
+  //   label: "Nearby Responders",
+  //   href: "/dashboard#volunteers",
+  //   icon: Users,
+  // },
   {
     label: "Emergency Radar Map",
-    href: "/dashboard#map",
+    href: "/crisis-map",
     icon: MapPin,
   },
 ];
@@ -60,7 +60,7 @@ const volunteerNavigation = [
   },
   {
     label: "Emergency Radar Map",
-    href: "/dashboard#map",
+    href: "/crisis-map",
     icon: MapPin,
   },
   {

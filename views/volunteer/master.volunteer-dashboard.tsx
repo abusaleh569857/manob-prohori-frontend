@@ -29,6 +29,7 @@ import {
   Volume2,
   BellRing,
   X,
+  Lock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -492,7 +493,7 @@ export function MasterVolunteerDashboardComponent() {
           Displayed when the volunteer has accepted an incident
           ------------------------------------------------------------------ */}
       {activeMission && (
-        <div className="rounded-3xl border-2 border-brand-red bg-linear-to-b from-red-50/70 via-white to-white p-6 sm:p-7 shadow-[0_20px_50px_rgba(220,38,38,0.12)]">
+        <div id="active-mission-cockpit" className="rounded-3xl border-2 border-brand-red bg-linear-to-b from-red-50/70 via-white to-white p-6 sm:p-7 shadow-[0_20px_50px_rgba(220,38,38,0.12)]">
           {/* Header */}
           <div className="flex flex-col gap-3 pb-5 border-b border-red-100 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -735,15 +736,25 @@ export function MasterVolunteerDashboardComponent() {
             {dispatches.map((inc) => {
               const Icon = getCategoryIcon(inc.categoryName);
               const locationText = inc.addressText || inc.areaName || inc.district || "Dhaka";
-              const isLocked = Boolean(activeMission);
+              const isCurrentActiveMission =
+                Boolean(activeMission) &&
+                Number(activeMission?.incidentId) === Number(inc.id);
+              const isLocked = Boolean(activeMission) && !isCurrentActiveMission;
 
               return (
                 <div
                   key={inc.id}
-                  className="flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-white p-5 shadow-xs hover:border-red-300 hover:shadow-md transition"
+                  className={cn(
+                    "flex flex-col justify-between rounded-2xl border bg-white p-5 shadow-xs transition",
+                    isCurrentActiveMission
+                      ? "border-2 border-emerald-500 bg-emerald-50/20 shadow-md ring-2 ring-emerald-500/20"
+                      : isLocked
+                      ? "border-slate-200/80 bg-slate-50/40 opacity-80"
+                      : "border-slate-200/90 hover:border-red-300 hover:shadow-md"
+                  )}
                 >
                   <div>
-                    {/* Top Row: Severity & Distance */}
+                    {/* Top Row: Severity & Status / Distance */}
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
                         <span
@@ -761,14 +772,28 @@ export function MasterVolunteerDashboardComponent() {
                         </span>
                       </div>
 
-                      <span className="inline-flex items-center gap-1 rounded-full bg-red-50 border border-red-200 px-2.5 py-0.5 text-[11px] font-extrabold text-brand-red">
-                        <MapPin className="size-3" />
-                        {inc.distanceKm < 0.05
-                          ? "Nearby (< 50m)"
-                          : inc.distanceKm < 1
-                          ? `${Math.round(inc.distanceKm * 1000)}m away`
-                          : `${inc.distanceKm} km away`}
-                      </span>
+                      {isCurrentActiveMission ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-600 text-white px-2.5 py-0.5 text-[11px] font-black shadow-xs animate-pulse">
+                          <CheckCircle2 className="size-3" />
+                          YOUR ACTIVE MISSION
+                        </span>
+                      ) : (
+                        <div className="flex items-center gap-1.5">
+                          {isLocked && (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 border border-slate-200 px-2 py-0.5 text-[10px] font-bold text-slate-500">
+                              <Lock className="size-2.5" /> Locked
+                            </span>
+                          )}
+                          <span className="inline-flex items-center gap-1 rounded-full bg-red-50 border border-red-200 px-2.5 py-0.5 text-[11px] font-extrabold text-brand-red">
+                            <MapPin className="size-3" />
+                            {inc.distanceKm < 0.05
+                              ? "Nearby (< 50m)"
+                              : inc.distanceKm < 1
+                              ? `${Math.round(inc.distanceKm * 1000)}m away`
+                              : `${inc.distanceKm} km away`}
+                          </span>
+                        </div>
+                      )}
                     </div>
 
                     {/* Title & Description */}
@@ -807,29 +832,39 @@ export function MasterVolunteerDashboardComponent() {
                     )}
                   </div>
 
-                  {/* Actions: 1-Click Accept & Decline */}
+                  {/* Actions: Distinct States for Active, Free, or Locked */}
                   <div className="mt-4 flex items-center gap-2 pt-3 border-t border-slate-100">
-                    <button
-                      onClick={() => handleAcceptDispatch(inc.id)}
-                      disabled={isAccepting || isLocked}
-                      className={cn(
-                        "flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-extrabold transition shadow-xs cursor-pointer",
-                        isLocked
-                          ? "bg-slate-100 text-slate-400 cursor-not-allowed"
-                          : "bg-brand-red text-white hover:bg-brand-red-dark shadow-brand-red/25"
-                      )}
-                    >
-                      <Check className="size-4" />
-                      <span>{isLocked ? "Complete Active Mission First" : "Accept Emergency Response"}</span>
-                    </button>
-
-                    {!isLocked && (
-                      <button
-                        onClick={() => handleDeclineDispatch(inc.id)}
-                        className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-50 transition cursor-pointer"
+                    {isCurrentActiveMission ? (
+                      <a
+                        href="#active-mission-cockpit"
+                        className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-emerald-600 py-2.5 text-xs font-black text-white hover:bg-emerald-700 transition shadow-xs shadow-emerald-600/30 cursor-pointer"
                       >
-                        Decline
-                      </button>
+                        <CheckCircle2 className="size-4" />
+                        <span>Active Mission in Progress (View Cockpit ↑)</span>
+                      </a>
+                    ) : isLocked ? (
+                      <div className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-slate-100 py-2.5 text-xs font-bold text-slate-400 border border-slate-200 cursor-not-allowed select-none">
+                        <Lock className="size-3.5 text-slate-400" />
+                        <span>Complete Active Mission #{activeMission?.incidentId} to Accept</span>
+                      </div>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => handleAcceptDispatch(inc.id)}
+                          disabled={isAccepting}
+                          className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-brand-red py-2.5 text-xs font-extrabold text-white hover:bg-brand-red-dark transition shadow-xs shadow-brand-red/25 cursor-pointer"
+                        >
+                          <Check className="size-4" />
+                          <span>Accept Emergency Response</span>
+                        </button>
+
+                        <button
+                          onClick={() => handleDeclineDispatch(inc.id)}
+                          className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-50 transition cursor-pointer"
+                        >
+                          Decline
+                        </button>
+                      </>
                     )}
                   </div>
                 </div>
@@ -881,8 +916,12 @@ export function MasterVolunteerDashboardComponent() {
           5. COMPLETE RESCUE MODAL
           ------------------------------------------------------------------ */}
       {isResolvingModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs animate-in fade-in">
-          <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl border border-slate-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in">
+          <div
+            className="fixed inset-0"
+            onClick={() => !isUpdatingMission && setIsResolvingModalOpen(false)}
+          />
+          <div className="relative z-10 w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl border border-slate-200">
             <div className="flex items-center gap-3 pb-3 border-b border-slate-100">
               <div className="grid size-10 place-items-center rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200">
                 <CheckCircle2 className="size-6" />
@@ -908,17 +947,25 @@ export function MasterVolunteerDashboardComponent() {
 
             <div className="mt-5 flex items-center justify-end gap-2.5">
               <button
+                type="button"
                 onClick={() => setIsResolvingModalOpen(false)}
-                className="rounded-xl border border-slate-200 px-4 py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-50"
+                disabled={isUpdatingMission}
+                className="rounded-xl border border-slate-200 px-4 py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-50 cursor-pointer disabled:opacity-50"
               >
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={() => handleAdvanceMission("COMPLETED", resolutionNote)}
                 disabled={isUpdatingMission}
-                className="rounded-xl bg-emerald-600 px-5 py-2.5 text-xs font-extrabold text-white hover:bg-emerald-700 shadow-md shadow-emerald-600/20"
+                className="flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-xs font-extrabold text-white hover:bg-emerald-700 shadow-md shadow-emerald-600/20 cursor-pointer disabled:opacity-50"
               >
-                Confirm Resolution
+                {isUpdatingMission ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <CheckCircle2 className="size-4" />
+                )}
+                <span>Confirm Resolution</span>
               </button>
             </div>
           </div>

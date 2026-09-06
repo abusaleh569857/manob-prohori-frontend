@@ -1,8 +1,9 @@
 import { Navbar } from "@/components/shared/navbar";
+import { Footer } from "@/components/shared/footer";
 
 // ============================================================================
 // Guest Route Group Layout
-// Automatically provides the shared navigation header for all guest pages.
+// Automatically provides the shared navigation header & footer for all guest pages.
 // ============================================================================
 export default function GuestLayout({
   children,
@@ -17,6 +18,8 @@ export default function GuestLayout({
       </div>
       {/* Main Page View Content */}
       <main className="grow">{children}</main>
+      {/* Global Responsive Footer */}
+      <Footer />
     </div>
   );
 }
