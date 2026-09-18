@@ -13,6 +13,7 @@ import {
   LogOut,
   User,
   ShieldCheck,
+  HeartPulse,
 } from "lucide-react";
 import { RoleSwitcher } from "./role-switcher";
 import { cn } from "@/lib/utils";
@@ -34,11 +35,35 @@ const citizenNavigation = [
     href: "/incidents/my",
     icon: FileText,
   },
-  // {
-  //   label: "Nearby Responders",
-  //   href: "/dashboard#volunteers",
-  //   icon: Users,
-  // },
+  {
+    label: "Emergency Blood Network",
+    href: "/blood",
+    icon: HeartPulse,
+  },
+  {
+    label: "Emergency Radar Map",
+    href: "/crisis-map",
+    icon: MapPin,
+  },
+];
+
+const donorNavigation = [
+  {
+    label: "Donor Dashboard & Matches",
+    href: "/donor/dashboard",
+    icon: HeartPulse,
+    isEmergency: true,
+  },
+  {
+    label: "Donor Registration / Proof",
+    href: "/donor/register",
+    icon: ShieldCheck,
+  },
+  {
+    label: "Live Blood Network",
+    href: "/blood",
+    icon: Siren,
+  },
   {
     label: "Emergency Radar Map",
     href: "/crisis-map",
@@ -75,7 +100,19 @@ export default function UserSidebar() {
   const { data: session } = useSession();
 
   const isVolunteerMode = pathname.startsWith("/volunteer");
-  const navItems = isVolunteerMode ? volunteerNavigation : citizenNavigation;
+  const isDonorMode = pathname.startsWith("/donor");
+  
+  const navItems = isDonorMode 
+    ? donorNavigation 
+    : isVolunteerMode 
+    ? volunteerNavigation 
+    : citizenNavigation;
+
+  const sectionTitle = isDonorMode
+    ? "Donor Portal"
+    : isVolunteerMode
+    ? "Volunteer Dashboard"
+    : "Citizen Navigation";
 
   return (
     <aside className="relative flex h-screen w-72 flex-col justify-between border-r border-slate-200/80 bg-white/80 backdrop-blur-2xl shadow-[4px_0_30px_rgba(0,0,0,0.03)] transition-all z-20">
@@ -106,7 +143,7 @@ export default function UserSidebar() {
         <div className="px-3.5 py-2 space-y-1">
           <div className="flex items-center justify-between px-3 mb-2">
             <p className="text-[10.5px] font-black uppercase tracking-widest text-slate-400">
-              {isVolunteerMode ? "Volunteer Dashboard" : "Citizen Navigation"}
+              {sectionTitle}
             </p>
           </div>
 

@@ -95,14 +95,14 @@ export function AdminSidebar() {
       badgeCount: null,
       badgeType: null,
     },
-    // {
-    //   label: "Hospitals Directory",
-    //   href: "/admin/hospitals",
-    //   icon: Building2,
-    //   tooltip: "Hospital capacity & ICU bed directory",
-    //   badgeCount: null,
-    //   badgeType: null,
-    // },
+    {
+      label: "Hospitals Directory",
+      href: "/admin/hospitals",
+      icon: Building2,
+      tooltip: "Hospital network, specialties & 24/7 emergency centers",
+      badgeCount: null,
+      badgeType: null,
+    },
     {
       label: "Emergency Hotlines",
       href: "/admin/emergency-services",

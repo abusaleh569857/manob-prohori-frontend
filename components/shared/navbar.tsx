@@ -61,6 +61,15 @@ export function Navbar() {
           </span>
           <span>Live Crisis Map</span>
         </Link>
+        <Link href="/hospitals" className="transition hover:text-brand-red">
+          Hospitals
+        </Link>
+        <Link href="/blood" className="transition hover:text-brand-red">
+          Blood Network
+        </Link>
+        <Link href="/emergency-directory" className="transition hover:text-brand-red">
+          Emergency Contacts
+        </Link>
         <Link href="/how-it-works" className="transition hover:text-brand-red">
           How It Works
         </Link>
