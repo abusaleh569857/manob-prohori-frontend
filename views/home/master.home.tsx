@@ -134,7 +134,7 @@ export function MasterHomeComponent() {
         {/* Hero grid: Left content column and right interactive mobile mockup */}
         <div className="relative z-10 grid min-h-155 items-center gap-8 pb-16 pt-8 sm:pt-10 lg:grid-cols-[1.05fr_.95fr] lg:pt-6">
           {/* Left Column: Heading, description, call-to-action buttons & stats */}
-          <div className="max-w-160 lg:max-w-[700px] xl:max-w-[740px]">
+          <div className="max-w-160 lg:max-w-175 xl:max-w-185">
             {/* Live emergency siren pulse badge */}
             <p className="mb-4 inline-flex items-center gap-2.5 rounded-full border border-red-200/80 bg-red-50/90 px-4 py-1.5 text-[13.5px] sm:text-sm font-extrabold text-red-600 shadow-sm shadow-red-500/10 backdrop-blur-sm">
               <span className="relative flex size-4 items-center justify-center">
