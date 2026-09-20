@@ -70,18 +70,6 @@ export function Navbar() {
         <Link href="/emergency-directory" className="transition hover:text-brand-red">
           Emergency Contacts
         </Link>
-        <Link href="/how-it-works" className="transition hover:text-brand-red">
-          How It Works
-        </Link>
-        <Link href="/find-help" className="transition hover:text-brand-red">
-          Find Help
-        </Link>
-        <Link href="/about-us" className="transition hover:text-brand-red">
-          About Us
-        </Link>
-        <Link href="/contact" className="transition hover:text-brand-red">
-          Contact
-        </Link>
       </nav>
 
       {/* Authentication Action Buttons */}
