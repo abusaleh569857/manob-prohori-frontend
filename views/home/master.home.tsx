@@ -19,6 +19,7 @@ import {
   Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { HeroPhone } from "./components/hero-phone";
 import { HeroCityRoute } from "./components/hero-city-route";
 import { LiveVerifiedIncidents } from "./components/live-verified-incidents";
@@ -133,7 +134,7 @@ export function MasterHomeComponent() {
         {/* Hero grid: Left content column and right interactive mobile mockup */}
         <div className="relative z-10 grid min-h-155 items-center gap-8 pb-16 pt-8 sm:pt-10 lg:grid-cols-[1.05fr_.95fr] lg:pt-6">
           {/* Left Column: Heading, description, call-to-action buttons & stats */}
-          <div className="max-w-160">
+          <div className="max-w-160 lg:max-w-175 xl:max-w-185">
             {/* Live emergency siren pulse badge */}
             <p className="mb-4 inline-flex items-center gap-2.5 rounded-full border border-red-200/80 bg-red-50/90 px-4 py-1.5 text-[13.5px] sm:text-sm font-extrabold text-red-600 shadow-sm shadow-red-500/10 backdrop-blur-sm">
               <span className="relative flex size-4 items-center justify-center">
@@ -181,32 +182,46 @@ export function MasterHomeComponent() {
               </Button>
             </div>
 
-            {/* Unified Stats Card with Dividers */}
-            <div className="mt-12 w-full max-w-177.5 rounded-3xl border border-slate-200/90 bg-white/95 p-3 sm:p-4 shadow-[0_12px_40px_rgba(15,23,42,0.08)] backdrop-blur-md">
-              <div className="grid grid-cols-2 divide-y divide-slate-200/80 sm:grid-cols-4 sm:divide-x sm:divide-y-0">
-                {stats.map(({ value, label, icon: Icon, tone }, index) => (
-                  <div
-                    key={label}
-                    className={`flex items-center gap-2.5 py-2 sm:py-0.5 ${
-                      index === 0
-                        ? "sm:pl-0 sm:pr-2.5"
-                        : index === 3
-                          ? "sm:pl-2.5 sm:pr-0"
-                          : "sm:px-2.5"
-                    }`}
-                  >
-                    <div
-                      className={`grid size-10 sm:size-11 shrink-0 place-items-center rounded-2xl ${tone} shadow-sm`}
-                    >
+            {/* Unified Stats Card */}
+            <div className="mt-10 w-full lg:w-fit rounded-3xl border border-slate-200/90 bg-white/95 px-5 py-4 sm:px-6 sm:py-4.5 shadow-[0_12px_40px_rgba(15,23,42,0.06)] backdrop-blur-md">
+              {/* Mobile View: 2x2 Grid */}
+              <div className="grid grid-cols-2 gap-x-5 gap-y-4 sm:hidden">
+                {stats.map(({ value, label, icon: Icon, tone }) => (
+                  <div key={label} className="flex items-center gap-3">
+                    <div className={cn("grid size-10 shrink-0 place-items-center rounded-2xl", tone)}>
                       <Icon className="size-5" />
                     </div>
-                    <div className="min-w-0">
-                      <p className="text-[18px] font-black leading-tight text-[#10233f] sm:text-[20px]">
+                    <div>
+                      <p className="text-base font-black leading-tight text-brand-navy whitespace-nowrap">
                         {value}
                       </p>
-                      <p className="mt-0.5 whitespace-nowrap text-[10.5px] font-bold text-slate-500 sm:text-[11.5px]">
+                      <p className="mt-0.5 text-[11px] font-bold text-slate-500 whitespace-nowrap">
                         {label}
                       </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Tablet & Desktop View */}
+              <div className="hidden sm:flex items-center gap-5 lg:gap-6.5">
+                {stats.map(({ value, label, icon: Icon, tone }, index) => (
+                  <div key={label} className="flex items-center gap-5 lg:gap-6.5">
+                    {index > 0 && (
+                      <div className="h-10 w-px bg-slate-200 shrink-0" />
+                    )}
+                    <div className="flex items-center gap-3">
+                      <div className={cn("grid size-11 shrink-0 place-items-center rounded-2xl shadow-2xs", tone)}>
+                        <Icon className="size-5" />
+                      </div>
+                      <div>
+                        <p className="text-[17px] lg:text-[18px] font-black leading-tight text-brand-navy tracking-tight whitespace-nowrap">
+                          {value}
+                        </p>
+                        <p className="mt-0.5 text-[11px] lg:text-[11.5px] font-bold text-slate-500 whitespace-nowrap">
+                          {label}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 ))}
