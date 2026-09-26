@@ -15,7 +15,7 @@ export const reliefApi = baseApi.injectEndpoints({
       ReliefFilters | void
     >({
       query: (params) => ({
-        url: "/api/relief/public",
+        url: "/relief/public",
         params: params || {},
       }),
       providesTags: ["Relief"],
@@ -23,7 +23,7 @@ export const reliefApi = baseApi.injectEndpoints({
 
     // 2. Single Relief Campaign by ID
     getReliefCampaignById: builder.query<{ success: boolean; data: ReliefCampaign }, number | string>({
-      query: (id) => `/api/relief/${id}`,
+      query: (id) => `/relief/${id}`,
       providesTags: ["Relief"],
     }),
 
@@ -33,7 +33,7 @@ export const reliefApi = baseApi.injectEndpoints({
       CreateReliefRequestInput
     >({
       query: (body) => ({
-        url: "/api/relief",
+        url: "/relief",
         method: "POST",
         body,
       }),
@@ -42,7 +42,7 @@ export const reliefApi = baseApi.injectEndpoints({
 
     // 4. Get Logged-in Citizen's Relief Requests
     getMyReliefRequests: builder.query<{ success: boolean; data: ReliefCampaign[] }, void>({
-      query: () => "/api/relief/my/requests",
+      query: () => "/relief/my/requests",
       providesTags: ["Relief"],
     }),
 
@@ -52,7 +52,7 @@ export const reliefApi = baseApi.injectEndpoints({
       RecordDonationInput
     >({
       query: ({ reliefRequestId, ...body }) => ({
-        url: `/api/relief/${reliefRequestId}/donate`,
+        url: `/relief/${reliefRequestId}/donate`,
         method: "POST",
         body,
       }),
@@ -65,7 +65,7 @@ export const reliefApi = baseApi.injectEndpoints({
       ReliefFilters | void
     >({
       query: (params) => ({
-        url: "/api/relief/admin/list",
+        url: "/relief/admin/list",
         params: params || {},
       }),
       providesTags: ["Relief", "Admin"],
@@ -77,7 +77,7 @@ export const reliefApi = baseApi.injectEndpoints({
       ReviewReliefRequestInput
     >({
       query: ({ id, ...body }) => ({
-        url: `/api/relief/admin/${id}/verify`,
+        url: `/relief/admin/${id}/verify`,
         method: "PATCH",
         body,
       }),
