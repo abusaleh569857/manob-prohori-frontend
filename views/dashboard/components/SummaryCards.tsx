@@ -11,7 +11,9 @@ import { cn } from "@/lib/utils";
 import {
   useGetNationalCrisisTelemetryQuery,
   useGetPublicVerifiedIncidentsQuery,
+  useGetPublicPlatformStatsQuery,
 } from "@/redux/api/incidentApi";
+import { useGetHospitalsQuery } from "@/redux/api/hospitalApi";
 
 export default function SummaryCards() {
   const { data: telemetryRes, isLoading: isTelemetryLoading } =
@@ -27,9 +29,15 @@ export default function SummaryCards() {
         refetchOnMountOrArgChange: true,
       }
     );
+  const { data: platformStatsRes } = useGetPublicPlatformStatsQuery(undefined, {
+    refetchOnMountOrArgChange: true,
+  });
+  const { data: hospitalsRes } = useGetHospitalsQuery({ limit: 100 });
 
   const telemetry = telemetryRes?.data;
   const verifiedList = verifiedRes?.data || [];
+  const platformStats = platformStatsRes?.data;
+  const hospitalsList = hospitalsRes?.data || [];
 
   const activeEmergencies = verifiedList.filter(
     (i: any) =>
@@ -47,15 +55,25 @@ export default function SummaryCards() {
     (i: any) => i.status === "IN_PROGRESS" || i.status === "DISPATCHING"
   ).length;
 
-  const totalVolunteers = telemetry?.totalVolunteers ?? (telemetry?.volunteers?.length || 14);
+  const totalVolunteers =
+    platformStats?.activeVolunteers ??
+    telemetry?.totalVolunteers ??
+    (telemetry?.volunteers?.length || 0);
+
   const availableVolunteers =
     telemetry?.volunteers?.filter((v: any) => v.volunteerStatus === "AVAILABLE")
-      ?.length ?? 10;
+      ?.length ?? totalVolunteers;
   const onMissionVolunteers =
     telemetry?.volunteers?.filter((v: any) => v.volunteerStatus === "ON_MISSION")
-      ?.length ?? 4;
+      ?.length ?? 0;
 
-  const totalIncidents = telemetry?.totalIncidents ?? (verifiedList.length || 6);
+  const totalHospitalsCount =
+    hospitalsList.length || platformStats?.totalHospitals || 0;
+
+  const totalIncidents =
+    platformStats?.totalIncidents ??
+    telemetry?.totalIncidents ??
+    verifiedList.length;
 
   const cards = [
     {
@@ -78,7 +96,7 @@ export default function SummaryCards() {
     },
     {
       title: "Nearby Medical Units",
-      value: 8,
+      value: totalHospitalsCount,
       subtitle: "Hospitals & Ambulances",
       trend: "< 5 km Radius",
       icon: Ambulance,
