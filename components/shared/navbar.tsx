@@ -23,6 +23,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu";
+import { NotificationBell } from "@/components/shared/notification-bell";
 
 // ============================================================================
 // Shared Navigation Bar Component
@@ -67,6 +68,9 @@ export function Navbar() {
         <Link href="/blood" className="transition hover:text-brand-red">
           Blood Network
         </Link>
+        <Link href="/relief" className="transition hover:text-brand-red">
+          Relief Aid
+        </Link>
         <Link href="/emergency-directory" className="transition hover:text-brand-red">
           Emergency Contacts
         </Link>
@@ -74,6 +78,7 @@ export function Navbar() {
 
       {/* Authentication Action Buttons */}
       <div className="hidden items-center gap-2.5 sm:flex">
+        {isAuthenticated && <NotificationBell />}
         {isAuthenticated ? (
           <DropdownMenu>
             <DropdownMenuTrigger className="group flex cursor-pointer items-center gap-3 rounded-2xl border border-brand-border bg-card px-3.5 py-1.5 shadow-xs transition-all hover:border-brand-red/30 hover:bg-brand-red-soft/40 hover:shadow-sm focus:outline-none">

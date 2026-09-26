@@ -117,14 +117,39 @@ export const adminApi = baseApi.injectEndpoints({
     }),
 
     getAdminAuditLogs: builder.query<
-      { success: boolean; data: any[] },
-      { limit?: number; action?: string } | void
+      { logs: any[]; total: number; limit: number; offset: number },
+      { limit?: number; offset?: number; search?: string; entityType?: string; action?: string } | void
     >({
       query: (params) => ({
         url: "/admin/audit-logs",
         params: params || {},
       }),
+      transformResponse: (response: { success: boolean; data: any }) => response.data,
       providesTags: ["AuditLog", "Admin"],
+    }),
+
+    getAdminUsers: builder.query<
+      { users: any[]; total: number; limit: number; offset: number },
+      { limit?: number; offset?: number; search?: string } | void
+    >({
+      query: (params) => ({
+        url: "/admin/users",
+        params: params || {},
+      }),
+      transformResponse: (response: { success: boolean; data: any }) => response.data,
+      providesTags: ["Admin"],
+    }),
+
+    toggleUserStatus: builder.mutation<
+      { success: boolean; message: string },
+      { userId: number | string; isActive: boolean }
+    >({
+      query: ({ userId, ...body }) => ({
+        url: `/admin/users/${userId}/status`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: ["Admin"],
     }),
   }),
 });
@@ -140,4 +165,6 @@ export const {
   useGetReliefVerificationListQuery,
   useVerifyReliefApplicationMutation,
   useGetAdminAuditLogsQuery,
+  useGetAdminUsersQuery,
+  useToggleUserStatusMutation,
 } = adminApi;

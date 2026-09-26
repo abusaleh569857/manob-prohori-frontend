@@ -14,6 +14,8 @@ import {
   User,
   ShieldCheck,
   HeartPulse,
+  HeartHandshake,
+  MessageSquare,
 } from "lucide-react";
 import { RoleSwitcher } from "./role-switcher";
 import { cn } from "@/lib/utils";
@@ -39,6 +41,16 @@ const citizenNavigation = [
     label: "Emergency Blood Network",
     href: "/blood",
     icon: HeartPulse,
+  },
+  {
+    label: "Disaster Relief Aid",
+    href: "/relief",
+    icon: HeartHandshake,
+  },
+  {
+    label: "Tactical Chat Hub",
+    href: "/chat",
+    icon: MessageSquare,
   },
   {
     label: "Emergency Radar Map",
@@ -82,6 +94,11 @@ const volunteerNavigation = [
     label: "Verification & Skills",
     href: "/volunteer/verification",
     icon: ShieldCheck,
+  },
+  {
+    label: "Tactical Chat Hub",
+    href: "/chat",
+    icon: MessageSquare,
   },
   {
     label: "Emergency Radar Map",
