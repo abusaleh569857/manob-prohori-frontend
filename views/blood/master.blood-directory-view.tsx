@@ -88,7 +88,9 @@ export function MasterBloodDirectoryView() {
   const bloodRequests: BloodRequest[] = requestsData?.data?.requests || [];
   const donorsList = donorsData?.data?.donors || [];
 
-  // GPS Locate Near Me
+  const [isLocatingModal, setIsLocatingModal] = useState(false);
+
+  // GPS Locate Near Me (Directory Filter)
   const handleLocateMe = () => {
     if (!navigator.geolocation) {
       toast.error("Geolocation is not supported by your browser");
@@ -99,11 +101,6 @@ export function MasterBloodDirectoryView() {
       (pos) => {
         const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         setUserCoords(coords);
-        setFormData((prev) => ({
-          ...prev,
-          latitude: coords.lat,
-          longitude: coords.lng,
-        }));
         setIsLocating(false);
         toast.success("Nearby requests sorted by your GPS location!");
       },
@@ -111,6 +108,60 @@ export function MasterBloodDirectoryView() {
         console.error("GPS error:", err);
         setIsLocating(false);
         toast.error("Could not fetch your GPS location. Please allow permissions.");
+      },
+      { timeout: 10000, enableHighAccuracy: true }
+    );
+  };
+
+  // Auto-detect GPS specifically for Blood Request Creation Modal
+  const handleDetectModalGPS = async () => {
+    if (!navigator.geolocation) {
+      toast.error("Geolocation is not supported by your browser");
+      return;
+    }
+    setIsLocatingModal(true);
+    toast.info("Detecting your live GPS location...");
+
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        let detectedAddress = `📍 Live GPS (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+
+        try {
+          // Reverse geocoding via OpenStreetMap
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`,
+            { headers: { "Accept-Language": "en,bn" } }
+          );
+          if (res.ok) {
+            const data = await res.json();
+            if (data?.display_name) {
+              const parts = data.display_name.split(",").slice(0, 3).map((s: string) => s.trim()).join(", ");
+              detectedAddress = parts || data.display_name;
+            }
+          }
+        } catch {
+          // Fallback to formatted coords
+        }
+
+        setFormData((prev) => ({
+          ...prev,
+          latitude: lat,
+          longitude: lng,
+          addressText: detectedAddress,
+        }));
+        setIsLocatingModal(false);
+        toast.success(`📍 লোকেশন শনাক্ত হয়েছে: ${detectedAddress}`);
+      },
+      (err) => {
+        setIsLocatingModal(false);
+        console.error("GPS error:", err);
+        if (err.code === err.PERMISSION_DENIED) {
+          toast.error("লোকেশন পারমিশন ব্লক করা আছে। ব্রাউজার সেটিংসে গিয়ে Allow করুন।");
+        } else {
+          toast.error("জিপিএস লোকেশন পাওয়া সম্ভব হয়নি। অনুগ্রহ করে ম্যানুয়ালি লিখুন।");
+        }
       },
       { timeout: 10000, enableHighAccuracy: true }
     );
@@ -607,12 +658,17 @@ export function MasterBloodDirectoryView() {
                   />
                   <button
                     type="button"
-                    onClick={handleLocateMe}
-                    className="flex items-center gap-1 rounded-xl border border-slate-200 bg-slate-100 px-3 py-2 text-[11px] font-bold text-slate-700 hover:bg-slate-200 transition cursor-pointer"
-                    title="Detect GPS coordinates"
+                    onClick={handleDetectModalGPS}
+                    disabled={isLocatingModal}
+                    className="flex items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-2 text-[11px] font-bold text-brand-red hover:bg-rose-100 transition cursor-pointer disabled:opacity-50"
+                    title="Detect GPS coordinates and auto-fill address"
                   >
-                    <Navigation className="size-3 text-rose-600" />
-                    <span>GPS</span>
+                    {isLocatingModal ? (
+                      <Loader2 className="size-3.5 animate-spin text-brand-red" />
+                    ) : (
+                      <Navigation className="size-3.5 text-brand-red" />
+                    )}
+                    <span>{isLocatingModal ? "Locating..." : "GPS"}</span>
                   </button>
                 </div>
               </div>

@@ -7,5 +7,10 @@ export const metadata = {
 };
 
 export default function ReliefPage() {
-  return <MasterReliefDirectoryView />;
+  return (
+    <div className="mx-auto w-full max-w-360 px-5 sm:px-8 lg:px-12 py-6">
+      <MasterReliefDirectoryView />
+    </div>
+  );
 }
+

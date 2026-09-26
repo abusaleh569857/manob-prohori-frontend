@@ -23,41 +23,13 @@ import { cn } from "@/lib/utils";
 import { HeroPhone } from "./components/hero-phone";
 import { HeroCityRoute } from "./components/hero-city-route";
 import { LiveVerifiedIncidents } from "./components/live-verified-incidents";
+import { useGetPublicPlatformStatsQuery } from "@/redux/api/incidentApi";
 
 // ============================================================================
-// 1. Live Platform Statistics Data
-// ============================================================================
-const stats = [
-  {
-    value: "8,547+",
-    label: "Active Volunteers",
-    icon: Users,
-    tone: "bg-red-50 text-red-600",
-  },
-  {
-    value: "512+",
-    label: "Hospitals",
-    icon: Building2,
-    tone: "bg-emerald-50 text-emerald-600",
-  },
-  {
-    value: "12,430+",
-    label: "Blood Donors",
-    icon: Droplets,
-    tone: "bg-rose-50 text-rose-600",
-  },
-  {
-    value: "1,248+",
-    label: "Ambulances",
-    icon: Ambulance,
-    tone: "bg-blue-50 text-blue-600",
-  },
-];
-
-// ============================================================================
-// 2. Core Platform Features Data
+// 1. Core Platform Features Data
 // ============================================================================
 const features = [
+
   {
     title: "One Tap Emergency",
     body: "Report any emergency instantly with your live location.",
@@ -97,6 +69,38 @@ export function MasterHomeComponent() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
+  const { data: statsResponse } = useGetPublicPlatformStatsQuery(undefined, {
+    refetchOnMountOrArgChange: true,
+  });
+  const liveStats = statsResponse?.data;
+
+  const stats = [
+    {
+      value: liveStats ? `${liveStats.activeVolunteers}+` : "5+",
+      label: "Active Volunteers",
+      icon: Users,
+      tone: "bg-red-50 text-red-600",
+    },
+    {
+      value: liveStats ? `${liveStats.totalHospitals}+` : "13+",
+      label: "Hospitals",
+      icon: Building2,
+      tone: "bg-emerald-50 text-emerald-600",
+    },
+    {
+      value: liveStats ? `${liveStats.bloodDonors}+` : "10+",
+      label: "Blood Donors",
+      icon: Droplets,
+      tone: "bg-rose-50 text-rose-600",
+    },
+    {
+      value: liveStats ? `${liveStats.ambulances}+` : "4+",
+      label: "Ambulances",
+      icon: Ambulance,
+      tone: "bg-blue-50 text-blue-600",
+    },
+  ];
+
   const handleReportEmergency = () => {
     if (status !== "authenticated" || !session?.user) {
       toast.error("Please sign in first to report an emergency!", {
@@ -107,6 +111,7 @@ export function MasterHomeComponent() {
       router.push("/incidents/create");
     }
   };
+
 
   return (
     <div className="min-h-screen bg-white text-[#10233f]">

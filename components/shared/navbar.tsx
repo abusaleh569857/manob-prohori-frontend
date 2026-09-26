@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import {
   User,
@@ -24,14 +25,32 @@ import {
   DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu";
 import { NotificationBell } from "@/components/shared/notification-bell";
+import { cn } from "@/lib/utils";
+
+const navLinks = [
+  { label: "Home", href: "/" },
+  { label: "Live Crisis Map", href: "/crisis-map", isLiveBadge: true },
+  { label: "Hospitals", href: "/hospitals" },
+  { label: "Blood Network", href: "/blood" },
+  { label: "Relief Aid", href: "/relief" },
+  { label: "Emergency Contacts", href: "/emergency-directory" },
+];
 
 // ============================================================================
 // Shared Navigation Bar Component
 // Renders brand logo, primary desktop navigation links, and auth action buttons.
 // ============================================================================
 export function Navbar() {
+  const pathname = usePathname();
   const { data: session, status } = useSession();
   const isAuthenticated = status === "authenticated" && !!session?.user;
+
+  const isLinkActive = (href: string) => {
+    if (href === "/") {
+      return pathname === "/";
+    }
+    return pathname.startsWith(href);
+  };
 
   return (
     <header className="relative z-20 flex h-24 items-center justify-between border-b border-slate-100/80">
@@ -48,32 +67,59 @@ export function Navbar() {
       </Link>
 
       {/* Desktop Navigation Links */}
-      <nav className="hidden items-center gap-7 text-[13.5px] font-semibold text-brand-text-secondary lg:flex">
-        <Link href="/" className="font-bold text-brand-navy hover:text-brand-red transition">
-          Home
-        </Link>
-        <Link
-          href="/crisis-map"
-          className="group relative flex items-center gap-1.5 rounded-full bg-red-50/80 px-3 py-1 font-bold text-brand-red border border-red-200/80 shadow-2xs hover:bg-red-100/80 transition"
-        >
-          <span className="relative flex size-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-red opacity-75"></span>
-            <span className="relative inline-flex size-2 rounded-full bg-brand-red"></span>
-          </span>
-          <span>Live Crisis Map</span>
-        </Link>
-        <Link href="/hospitals" className="transition hover:text-brand-red">
-          Hospitals
-        </Link>
-        <Link href="/blood" className="transition hover:text-brand-red">
-          Blood Network
-        </Link>
-        <Link href="/relief" className="transition hover:text-brand-red">
-          Relief Aid
-        </Link>
-        <Link href="/emergency-directory" className="transition hover:text-brand-red">
-          Emergency Contacts
-        </Link>
+      <nav className="hidden items-center gap-4 text-[13.5px] font-semibold lg:flex">
+        {navLinks.map((item) => {
+          const active = isLinkActive(item.href);
+
+          if (item.isLiveBadge) {
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "group relative flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold transition-all shadow-2xs",
+                  active
+                    ? "bg-brand-red text-white shadow-md shadow-brand-red/25 ring-2 ring-brand-red/20 font-black"
+                    : "bg-red-50/80 text-brand-red border border-red-200/80 hover:bg-red-100/90"
+                )}
+              >
+                <span className="relative flex size-2">
+                  <span
+                    className={cn(
+                      "absolute inline-flex h-full w-full rounded-full animate-ping opacity-75",
+                      active ? "bg-white" : "bg-brand-red"
+                    )}
+                  />
+                  <span
+                    className={cn(
+                      "relative inline-flex size-2 rounded-full",
+                      active ? "bg-white" : "bg-brand-red"
+                    )}
+                  />
+                </span>
+                <span>{item.label}</span>
+              </Link>
+            );
+          }
+
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "relative px-2.5 py-1 text-[13.5px] rounded-lg transition-all duration-150",
+                active
+                  ? "font-black text-brand-red bg-red-50/70 shadow-2xs"
+                  : "font-semibold text-slate-600 hover:text-brand-red hover:bg-slate-50/80"
+              )}
+            >
+              {item.label}
+              {active && (
+                <span className="absolute inset-x-2 -bottom-1 h-0.5 rounded-full bg-brand-red" />
+              )}
+            </Link>
+          );
+        })}
       </nav>
 
       {/* Authentication Action Buttons */}

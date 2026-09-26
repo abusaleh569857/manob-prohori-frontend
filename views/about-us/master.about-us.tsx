@@ -15,8 +15,14 @@ import {
   Award,
   Globe2,
 } from "lucide-react";
+import { useGetPublicPlatformStatsQuery } from "@/redux/api/incidentApi";
 
 export function MasterAboutUsComponent() {
+  const { data: statsResponse } = useGetPublicPlatformStatsQuery(undefined, {
+    refetchOnMountOrArgChange: true,
+  });
+  const liveStats = statsResponse?.data;
+
   return (
     <div className="space-y-12 pb-16">
       {/* 1. HERO BANNER */}
@@ -93,19 +99,25 @@ export function MasterAboutUsComponent() {
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 text-center">
           <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
-            <span className="text-3xl sm:text-4xl font-black text-brand-navy">64</span>
+            <span className="text-3xl sm:text-4xl font-black text-brand-navy">
+              {liveStats ? liveStats.districtsCovered : 64}
+            </span>
             <p className="text-xs font-bold text-slate-500 uppercase mt-1">Districts Covered</p>
           </div>
           <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
-            <span className="text-3xl sm:text-4xl font-black text-brand-red">8,500+</span>
+            <span className="text-3xl sm:text-4xl font-black text-brand-red">
+              {liveStats ? `${liveStats.activeVolunteers}+` : "5+"}
+            </span>
             <p className="text-xs font-bold text-slate-500 uppercase mt-1">Verified Volunteers</p>
           </div>
           <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
-            <span className="text-3xl sm:text-4xl font-black text-rose-600">12,400+</span>
+            <span className="text-3xl sm:text-4xl font-black text-rose-600">
+              {liveStats ? `${liveStats.bloodDonors}+` : "10+"}
+            </span>
             <p className="text-xs font-bold text-slate-500 uppercase mt-1">Blood Donors</p>
           </div>
           <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
-            <span className="text-3xl sm:text-4xl font-black text-emerald-600">&lt; 4 min</span>
+            <span className="text-3xl sm:text-4xl font-black text-emerald-600">&lt; 3 min</span>
             <p className="text-xs font-bold text-slate-500 uppercase mt-1">Avg. Alert Time</p>
           </div>
         </div>

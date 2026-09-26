@@ -111,7 +111,7 @@ export function MasterHospitalsView() {
     <div className="min-h-screen bg-slate-50/50 pb-20">
       {/* 1. Header Hero Section */}
       <section className="relative overflow-hidden border-b border-slate-200/80 bg-linear-to-b from-white via-slate-50 to-slate-100/50 pt-10 pb-12">
-        <div className="container mx-auto px-4 sm:px-6">
+        <div className="mx-auto w-full max-w-360 px-5 sm:px-8 lg:px-12">
           <div className="mx-auto max-w-3xl text-center">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 border border-red-200 px-3 py-1 text-xs font-black uppercase tracking-wider text-brand-red shadow-2xs">
               <HeartPulse className="size-3.5 animate-pulse" />
@@ -257,7 +257,7 @@ export function MasterHospitalsView() {
       </section>
 
       {/* 3. Hospital Cards Grid Section */}
-      <section className="container mx-auto px-4 sm:px-6 pt-8">
+      <section className="mx-auto w-full max-w-360 px-5 sm:px-8 lg:px-12 pt-8">
         {isLoading ? (
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3, 4, 5, 6].map((i) => (

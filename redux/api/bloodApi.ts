@@ -15,13 +15,13 @@ export const bloodApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     // 1. Reference Data: Blood Groups
     getBloodGroups: builder.query<{ success: boolean; data: BloodGroup[] }, void>({
-      query: () => "/api/blood/groups",
+      query: () => "/blood/groups",
       providesTags: ["Blood"],
     }),
 
     // 2. Donor Profile (Logged-in user)
     getMyDonorProfile: builder.query<{ success: boolean; data: BloodDonorProfile | null }, void>({
-      query: () => "/api/blood/donor/me",
+      query: () => "/blood/donor/me",
       providesTags: ["BloodDonor"],
     }),
 
@@ -31,7 +31,7 @@ export const bloodApi = baseApi.injectEndpoints({
       ApplyDonorInput
     >({
       query: (body) => ({
-        url: "/api/blood/donor/apply",
+        url: "/blood/donor/apply",
         method: "POST",
         body,
       }),
@@ -44,7 +44,7 @@ export const bloodApi = baseApi.injectEndpoints({
       { availability: 'AVAILABLE' | 'UNAVAILABLE' }
     >({
       query: (body) => ({
-        url: "/api/blood/donor/availability",
+        url: "/blood/donor/availability",
         method: "PATCH",
         body,
       }),
@@ -57,7 +57,7 @@ export const bloodApi = baseApi.injectEndpoints({
       { lastDonationDate?: string; latitude?: number; longitude?: number }
     >({
       query: (body) => ({
-        url: "/api/blood/donor/profile",
+        url: "/blood/donor/profile",
         method: "PATCH",
         body,
       }),
@@ -69,7 +69,7 @@ export const bloodApi = baseApi.injectEndpoints({
       { success: boolean; data: BloodRequestMatch[] },
       void
     >({
-      query: () => "/api/blood/donor/matches",
+      query: () => "/blood/donor/matches",
       providesTags: ["BloodRequest"],
     }),
 
@@ -79,7 +79,7 @@ export const bloodApi = baseApi.injectEndpoints({
       { matchId: number; status: 'ACCEPTED' | 'DECLINED' }
     >({
       query: ({ matchId, status }) => ({
-        url: `/api/blood/donor/matches/${matchId}/respond`,
+        url: `/blood/donor/matches/${matchId}/respond`,
         method: "POST",
         body: { status },
       }),
@@ -92,7 +92,7 @@ export const bloodApi = baseApi.injectEndpoints({
       BloodRequestFilters | void
     >({
       query: (params) => ({
-        url: "/api/blood/requests",
+        url: "/blood/requests",
         params: params || {},
       }),
       providesTags: ["BloodRequest"],
@@ -103,7 +103,7 @@ export const bloodApi = baseApi.injectEndpoints({
       { success: boolean; data: BloodRequest },
       number | string
     >({
-      query: (id) => `/api/blood/requests/${id}`,
+      query: (id) => `/blood/requests/${id}`,
       providesTags: ["BloodRequest"],
     }),
 
@@ -113,7 +113,7 @@ export const bloodApi = baseApi.injectEndpoints({
       CreateBloodRequestInput
     >({
       query: (body) => ({
-        url: "/api/blood/requests",
+        url: "/blood/requests",
         method: "POST",
         body,
       }),
@@ -126,7 +126,7 @@ export const bloodApi = baseApi.injectEndpoints({
       { id: number; status: 'OPEN' | 'FULFILLED' | 'CANCELLED' }
     >({
       query: ({ id, status }) => ({
-        url: `/api/blood/requests/${id}/status`,
+        url: `/blood/requests/${id}/status`,
         method: "PATCH",
         body: { status },
       }),
@@ -139,7 +139,7 @@ export const bloodApi = baseApi.injectEndpoints({
       { bloodGroup?: string; division?: string; district?: string; search?: string; limit?: number; offset?: number } | void
     >({
       query: (params) => ({
-        url: "/api/blood/donors/search",
+        url: "/blood/donors/search",
         params: params || {},
       }),
       providesTags: ["BloodDonor"],
@@ -151,7 +151,7 @@ export const bloodApi = baseApi.injectEndpoints({
       AdminDonorFilters | void
     >({
       query: (params) => ({
-        url: "/api/blood/admin/donors",
+        url: "/blood/admin/donors",
         params: params || {},
       }),
       providesTags: ["BloodDonor", "Admin"],
@@ -163,7 +163,7 @@ export const bloodApi = baseApi.injectEndpoints({
       { userId: number; status: 'APPROVED' | 'REJECTED'; notes?: string }
     >({
       query: ({ userId, status, notes }) => ({
-        url: `/api/blood/admin/donors/${userId}/verify`,
+        url: `/blood/admin/donors/${userId}/verify`,
         method: "PATCH",
         body: { status, notes },
       }),
