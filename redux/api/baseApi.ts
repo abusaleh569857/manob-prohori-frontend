@@ -37,6 +37,8 @@ export const baseApi = createApi({
     "Relief",
     "Admin",
     "AuditLog",
+    "Chat",
+    "Notification",
   ],
   endpoints: () => ({}),
 });

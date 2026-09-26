@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -13,12 +14,15 @@ import {
   ExternalLink,
   ShieldCheck,
   Loader2,
+  MessageSquare,
+  Radio,
 } from "lucide-react";
 import {
   useGetIncidentByIdQuery,
   useGetIncidentHistoryQuery,
 } from "@/redux/api/incidentApi";
 import { IncidentStatusTimeline } from "./components/incident-status-timeline";
+import { IncidentChatModal } from "@/components/chat/incident-chat-modal";
 
 interface MasterIncidentDetailsProps {
   incidentId: string;
@@ -46,6 +50,7 @@ export function MasterIncidentDetailsComponent({
   incidentId,
 }: MasterIncidentDetailsProps) {
   const router = useRouter();
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const { data: incidentResponse, isLoading, error } =
     useGetIncidentByIdQuery(incidentId);
   const { data: historyResponse } = useGetIncidentHistoryQuery(incidentId);
@@ -148,13 +153,24 @@ export function MasterIncidentDetailsComponent({
               </span>
             </div>
 
-            <span
-              className={`rounded-full border px-3.5 py-1 text-xs font-extrabold tracking-wide uppercase ${
-                statusBadgeStyles[incident.status] || "bg-slate-100"
-              }`}
-            >
-              ● {incident.status.replaceAll("_", " ")}
-            </span>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setIsChatOpen(true)}
+                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-md hover:from-red-500 hover:to-rose-500 transition-all hover:scale-105 cursor-pointer"
+              >
+                <Radio className="size-3.5 animate-pulse" />
+                <span>লাইভ ট্যাকটিকাল চ্যাট</span>
+              </button>
+
+              <span
+                className={`rounded-full border px-3.5 py-1 text-xs font-extrabold tracking-wide uppercase ${
+                  statusBadgeStyles[incident.status] || "bg-slate-100"
+                }`}
+              >
+                ● {incident.status.replaceAll("_", " ")}
+              </span>
+            </div>
           </div>
 
           {/* Title and Description */}
@@ -253,6 +269,14 @@ export function MasterIncidentDetailsComponent({
             currentStatus={incident.status}
           />
         </div>
+
+        {/* Live Tactical Chat Modal */}
+        <IncidentChatModal
+          incidentId={Number(incidentId)}
+          incidentTitle={incident.title}
+          isOpen={isChatOpen}
+          onClose={() => setIsChatOpen(false)}
+        />
       </div>
     </div>
   );

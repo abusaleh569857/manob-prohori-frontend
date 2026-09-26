@@ -1,10 +1,10 @@
-import { MasterAdminReliefComponent } from "@/views/admin/relief/master.admin-relief";
+import { MasterAdminReliefView } from "@/views/admin/relief/master.admin-relief";
 
 export const metadata = {
-  title: "Relief Requests & Aid Verification | Admin Portal",
-  description: "Verify victim relief requests and authorize direct donation publishing",
+  title: "Relief Campaigns Verification & Moderation | Admin Portal",
+  description: "Verify disaster damage documentation, authenticate victim mobile financial accounts, and publish public campaigns.",
 };
 
 export default function AdminReliefPage() {
-  return <MasterAdminReliefComponent />;
+  return <MasterAdminReliefView />;
 }
