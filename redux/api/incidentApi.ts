@@ -276,6 +276,25 @@ export const incidentApi = baseApi.injectEndpoints({
         { type: "Incident", id: `${id}-responders` },
       ],
     }),
+
+    getPublicPlatformStats: builder.query<
+      ApiResponse<{
+        activeVolunteers: number;
+        totalHospitals: number;
+        bloodDonors: number;
+        ambulances: number;
+        resolvedIncidents: number;
+        totalIncidents: number;
+        districtsCovered: number;
+      }>,
+      void
+    >({
+      query: () => ({
+        url: "/incidents/public/stats",
+        method: "GET",
+      }),
+      providesTags: ["Incident", "Volunteer"],
+    }),
   }),
   overrideExisting: true,
 });
@@ -290,6 +309,7 @@ export const {
   useToggleIncidentCategoryStatusMutation,
   useDeleteIncidentCategoryMutation,
   useGetPublicVerifiedIncidentsQuery,
+  useGetPublicPlatformStatsQuery,
   useCreateIncidentMutation,
   useGetMyIncidentsQuery,
   useGetAllIncidentsQuery,
@@ -301,3 +321,4 @@ export const {
   useGetIncidentDispatchedRespondersQuery,
   useUpdateIncidentStatusMutation,
 } = incidentApi;
+

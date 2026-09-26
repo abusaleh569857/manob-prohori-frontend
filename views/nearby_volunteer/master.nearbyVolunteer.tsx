@@ -22,55 +22,27 @@ export default function NearbyVolunteer({
   volunteers,
 }: NearbyVolunteerProps) {
   return (
-    <>
+    <div className="flex min-h-screen bg-slate-50/60 font-sans text-brand-navy">
       {/* ================= SIDEBAR ================= */}
-      <UserSidebar />
+      <div className="hidden lg:block shrink-0 sticky top-0 h-screen">
+        <UserSidebar />
+      </div>
 
       {/* ================= MAIN ================= */}
-      <main
-        className="
-          ml-[280px]
-          min-h-screen
-          w-[calc(100%-280px)]
-          bg-[#f7fafc]
-        "
-      >
+      <div className="flex flex-1 flex-col min-w-0">
         {/* Header */}
         <UserHeader />
 
         {/* Content */}
-        <div className="px-8 py-8">
+        <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-5 sm:py-8 space-y-6">
           {/* ================= PAGE HEADER ================= */}
-          <div
-            className="
-              mb-8
-              flex
-              flex-wrap
-              items-end
-              justify-between
-              gap-6
-            "
-          >
+          <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
             {/* Title */}
             <div>
-              <h2
-                className="
-                  text-5xl
-                  font-bold
-                  leading-tight
-                  text-[#181c1e]
-                "
-              >
+              <h2 className="text-2xl sm:text-3xl font-black text-brand-navy tracking-tight">
                 নিকটবর্তী ভলান্টিয়ার
               </h2>
-
-              <p
-                className="
-                  mt-2
-                  text-[15px]
-                  text-[#5b403e]
-                "
-              >
+              <p className="mt-1 text-sm text-slate-500 font-medium">
                 আপনার এলাকার সক্রিয় উদ্ধারকর্মীদের তালিকা
               </p>
             </div>
@@ -82,15 +54,7 @@ export default function NearbyVolunteer({
           </div>
 
           {/* ================= VOLUNTEER GRID ================= */}
-          <div
-            className="
-              grid
-              grid-cols-1
-              gap-6
-              md:grid-cols-2
-              lg:grid-cols-3
-            "
-          >
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {volunteers.length > 0 ? (
               volunteers.map((volunteer) => (
                 <VolunteerCard
@@ -99,33 +63,23 @@ export default function NearbyVolunteer({
                 />
               ))
             ) : (
-              <div
-                className="
-                  col-span-full
-                  rounded-xl
-                  bg-white
-                  p-10
-                  text-center
-                  shadow-sm
-                "
-              >
+              <div className="col-span-full rounded-2xl border border-dashed border-slate-200 bg-white p-10 text-center shadow-xs">
                 <span className="material-symbols-outlined text-5xl text-gray-400">
                   group_off
                 </span>
 
-                <h3 className="mt-3 text-xl font-semibold text-gray-700">
+                <h3 className="mt-3 text-lg font-bold text-slate-800">
                   কোনো নিকটবর্তী ভলান্টিয়ার পাওয়া যায়নি
                 </h3>
 
-                <p className="mt-2 text-sm text-gray-500">
-                  আপনার এলাকার ৩ কিলোমিটারের মধ্যে
-                  বর্তমানে কোনো verified volunteer নেই।
+                <p className="mt-2 text-xs sm:text-sm text-slate-500">
+                  আপনার এলাকার ৩ কিলোমিটারের মধ্যে বর্তমানে কোনো verified volunteer নেই।
                 </p>
               </div>
             )}
           </div>
-        </div>
-      </main>
-    </>
+        </main>
+      </div>
+    </div>
   );
 }

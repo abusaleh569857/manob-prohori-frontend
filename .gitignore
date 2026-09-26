@@ -12,6 +12,10 @@
 
 # testing
 /coverage
+playwright-report/
+blob-report/
+*.zip
+test-results/**/*.zip
 
 # next.js
 /.next/
